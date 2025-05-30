@@ -2,6 +2,7 @@
   "version": "0.2",
   "words": [
     "cicd",
+    "cleanx",
     "commitlint",
     "commitlintrc",
     "corepack",

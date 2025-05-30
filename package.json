@@ -1,11 +1,11 @@
 {
-  "name": "ts-starter",
+  "name": "cleanx",
   "version": "0.0.0",
   "description": "",
   "keywords": [],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jimmy-guzman/ts-starter.git"
+    "url": "https://github.com/jimmy-guzman/cleanx.git"
   },
   "license": "MIT",
   "sideEffects": false,
