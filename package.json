@@ -1,8 +1,17 @@
 {
   "name": "cleanx",
   "version": "0.0.0",
-  "description": "",
-  "keywords": [],
+  "description": "Configurable cleaning tool for JavaScript/TypeScript projects",
+  "keywords": [
+    "clean",
+    "build",
+    "artifacts",
+    "typescript",
+    "javascript",
+    "monorepo",
+    "configurable",
+    "cli"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/jimmy-guzman/cleanx.git"
@@ -10,11 +19,9 @@
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
-  "exports": {
-    ".": "./dist/index.js"
+  "bin": {
+    "cleanx": "./dist/cli.js"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -33,6 +40,12 @@
     "typecheck": "tsc"
   },
   "prettier": "@jimmy.codes/prettier-config",
+  "dependencies": {
+    "ansis": "4.1.0",
+    "citty": "0.1.6",
+    "tinyglobby": "0.2.14",
+    "unconfig": "7.3.2"
+  },
   "devDependencies": {
     "@commitlint/config-conventional": "19.8.1",
     "@jimmy.codes/eslint-config": "5.14.0",

@@ -1,1 +1,1 @@
-export const lib = "";
+export { defineConfig } from "./config";
