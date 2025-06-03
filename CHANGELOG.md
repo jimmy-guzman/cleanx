@@ -1,3 +1,11 @@
+## [1.0.5](https://github.com/jimmy-guzman/cleanx/compare/v1.0.4...v1.0.5) (2025-06-03)
+
+
+### Bug Fixes
+
+* 🐛 add missing sensible default include paths ([15c5ead](https://github.com/jimmy-guzman/cleanx/commit/15c5ead705b77a1a08431ad08d0cebb6114f961c))
+* 🐛 use correct storybook dist directory ([7b4e43d](https://github.com/jimmy-guzman/cleanx/commit/7b4e43de543e4c4feed99cd3e58da123fe0d5ce4))
+
 ## [1.0.4](https://github.com/jimmy-guzman/cleanx/compare/v1.0.3...v1.0.4) (2025-06-03)
 
 
