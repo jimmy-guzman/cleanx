@@ -42,7 +42,7 @@ export async function runClean(options: RunCleanOptions) {
   // eslint-disable-next-line no-console -- this is for a blank line before output
   console.log();
 
-  const isDryRun = options.dryRun ?? rootConfig.dryRun ?? true;
+  const isDryRun = options.dryRun ?? rootConfig.dryRun ?? false;
 
   if (isDryRun) {
     logger.warn(
