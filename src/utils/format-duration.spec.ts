@@ -1,5 +1,3 @@
-import { describe, expect, it } from "vitest";
-
 import { formatDuration } from "./format-duration";
 
 describe("formatDuration", () => {

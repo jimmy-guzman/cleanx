@@ -30,6 +30,9 @@ importers:
       '@jimmy.codes/prettier-config':
         specifier: 1.5.0
         version: 1.5.0(prettier@3.5.3)
+      '@manypkg/get-packages':
+        specifier: 3.0.0
+        version: 3.0.0
       '@types/node':
         specifier: 22.15.27
         version: 22.15.27
@@ -570,6 +573,18 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@manypkg/find-root@3.0.0':
+    resolution: {integrity: sha512-uO3Rag7b0upqBGTJyZN2dPwaBdbGBZwT892RkUxzEgxgWccHGM5hZnXAy13Es95CVpsJ/QuEb2uNJ8pYBK0ZlA==}
+    engines: {node: '>=20.0.0'}
+
+  '@manypkg/get-packages@3.0.0':
+    resolution: {integrity: sha512-C5TGJoG/MaVGt0HDij+RYQxVw/O/GDNJc4+qwv8g6wtbGEE8wawCcrQns8+qaNsZJybTTHYgdw7eD3wQhuxTng==}
+    engines: {node: '>=20.0.0'}
+
+  '@manypkg/tools@2.0.0':
+    resolution: {integrity: sha512-o4ZC8J9OmFT6Ar8hhObWrFe7M7TRFuskm8ROhroZZWdQ+/V1+RswP74wJkkDKY/VDcteKYCACq2PblifRRnj1g==}
+    engines: {node: '>=20.0.0'}
 
   '@napi-rs/wasm-runtime@0.2.10':
     resolution: {integrity: sha512-bCsCyeZEwVErsGmyPNSzwfwFn4OdxBj0mmv6hOFucB/k81Ojdu68RbZdxYsRQUPc9l6SU5F/cG+bXgWs3oUgsQ==}
@@ -2211,6 +2226,9 @@ packages:
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
+
+  jju@1.4.0:
+    resolution: {integrity: sha512-8wb9Yw966OSxApiCt0K3yNJL8pnNeIv+OEq2YMidz4FKP6nonSRoOXc80iXY4JaN2FC11B9qsNmDsm+ZOfMROA==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -3921,6 +3939,21 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@manypkg/find-root@3.0.0':
+    dependencies:
+      '@manypkg/tools': 2.0.0
+
+  '@manypkg/get-packages@3.0.0':
+    dependencies:
+      '@manypkg/find-root': 3.0.0
+      '@manypkg/tools': 2.0.0
+
+  '@manypkg/tools@2.0.0':
+    dependencies:
+      jju: 1.4.0
+      js-yaml: 4.1.0
+      tinyglobby: 0.2.14
 
   '@napi-rs/wasm-runtime@0.2.10':
     dependencies:
@@ -5719,6 +5752,8 @@ snapshots:
       '@pkgjs/parseargs': 0.11.0
 
   jiti@2.4.2: {}
+
+  jju@1.4.0: {}
 
   js-tokens@4.0.0: {}
 

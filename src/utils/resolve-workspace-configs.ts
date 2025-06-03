@@ -5,6 +5,8 @@ import { glob } from "tinyglobby";
 import type { CleanxOptions } from "../options";
 
 import { dedupe } from "./dedupe";
+import { inferWorkspaces } from "./infer-workspaces";
+import { isWithinCwd } from "./is-within-cwd";
 import { mergeConfigs } from "./merge-configs";
 
 interface ResolveWorkspaceConfigsOptions {
@@ -20,7 +22,11 @@ export async function resolveWorkspaceConfigs({
   profileConfig,
   rootConfig,
 }: ResolveWorkspaceConfigsOptions) {
-  const workspaces = rootConfig.workspaces ?? {};
+  let workspaces = rootConfig.workspaces ?? {};
+
+  if (Object.keys(workspaces).length === 0) {
+    workspaces = await inferWorkspaces(cwd);
+  }
 
   const workspaceEntries = await Promise.all(
     Object.entries(workspaces).map(async ([pattern, override]) => {
@@ -51,9 +57,7 @@ export async function resolveWorkspaceConfigs({
       .map((entry) => {
         return relative(cwd, entry.dir);
       })
-      .filter((dir) => {
-        return dir !== "" && !dir.startsWith("..");
-      }),
+      .filter(isWithinCwd),
   );
 
   const rootConfigWithExcludes = mergeConfigs({
