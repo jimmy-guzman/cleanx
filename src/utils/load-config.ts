@@ -1,4 +1,4 @@
-import { loadConfig as unconfigLoadConfig } from "unconfig";
+import { loadConfig as createConfigLoader } from "unconfig";
 
 import type { CleanxOptions } from "../options";
 
@@ -8,8 +8,9 @@ interface LoadConfigOptions {
 }
 
 export async function loadConfig({ configPath, cwd }: LoadConfigOptions) {
-  const { config } = await unconfigLoadConfig<CleanxOptions>({
+  const { config } = await createConfigLoader<CleanxOptions>({
     cwd,
+    defaults: {},
     sources: [
       {
         extensions: ["ts", "mts", "cts", "js", "mjs", "cjs"],
