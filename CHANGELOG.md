@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/jimmy-guzman/cleanx/compare/v1.0.3...v1.0.4) (2025-06-03)
+
+
+### Bug Fixes
+
+* 🐛 actually default dry run as `false` ([#9](https://github.com/jimmy-guzman/cleanx/issues/9)) ([a03cc30](https://github.com/jimmy-guzman/cleanx/commit/a03cc301a25966b91a05b3bfbb5f538f46660820))
+
 ## [1.0.3](https://github.com/jimmy-guzman/cleanx/compare/v1.0.2...v1.0.3) (2025-06-03)
 
 
