@@ -102,6 +102,6 @@ export async function runClean(options: RunCleanOptions) {
   const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
 
   logger.success(
-    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully${dryRunSuffix} in ${gray(formatDuration(duration))}`,
+    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${gray(formatDuration(duration))}${dryRunSuffix}`,
   );
 }
