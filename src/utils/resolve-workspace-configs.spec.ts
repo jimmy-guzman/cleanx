@@ -1,5 +1,7 @@
 import { resolve } from "node:path";
 
+import type { GlobOptions } from "tinyglobby";
+
 import { resolveWorkspaceConfigs } from "./resolve-workspace-configs";
 
 vi.mock("tinyglobby", () => {
@@ -8,14 +10,25 @@ vi.mock("tinyglobby", () => {
   };
 });
 
+vi.mock("./infer-workspaces", () => {
+  return {
+    inferWorkspaces: vi.fn(),
+  };
+});
+
 const { glob } = await import("tinyglobby");
+const { inferWorkspaces } = await import("./infer-workspaces");
+
 const mockGlob = vi.mocked(glob);
+const mockInferWorkspaces = vi.mocked(inferWorkspaces);
 
 describe("resolveWorkspaceConfigs", () => {
   const mockCwd = "/project";
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default mock for inferWorkspaces to return empty object
+    mockInferWorkspaces.mockResolvedValue({});
   });
 
   describe("basic functionality", () => {
@@ -40,6 +53,9 @@ describe("resolveWorkspaceConfigs", () => {
         exclude: ["node_modules"],
         include: ["**/*"],
       });
+
+      // Should try to infer workspaces when none are configured
+      expect(mockInferWorkspaces).toHaveBeenCalledWith(mockCwd);
     });
 
     it("should resolve workspace patterns and return workspace configs", async () => {
@@ -71,6 +87,9 @@ describe("resolveWorkspaceConfigs", () => {
         cwd: mockCwd,
         onlyDirectories: true,
       });
+
+      // Should not call inferWorkspaces when workspaces are explicitly configured
+      expect(mockInferWorkspaces).not.toHaveBeenCalled();
 
       expect(result).toHaveLength(3); // root + 2 workspaces
 
@@ -115,6 +134,141 @@ describe("resolveWorkspaceConfigs", () => {
         "dist",
         "temp",
       ]);
+    });
+  });
+
+  describe("workspace inference", () => {
+    it("should use inferred workspaces when none are configured", async () => {
+      const workspaceDir1 = resolve(mockCwd, "packages/app");
+      const workspaceDir2 = resolve(mockCwd, "libs/utils");
+
+      // Mock inferWorkspaces to return discovered workspaces
+      mockInferWorkspaces.mockResolvedValue({
+        "libs/utils": { exclude: ["build"] },
+        "packages/app": {},
+      });
+
+      // Mock glob to return the expected directories for each pattern
+      mockGlob.mockImplementation((pattern) => {
+        if (pattern === ("packages/app" as GlobOptions)) {
+          return Promise.resolve([workspaceDir1]);
+        }
+        if (pattern === ("libs/utils" as GlobOptions)) {
+          return Promise.resolve([workspaceDir2]);
+        }
+
+        return Promise.resolve([]);
+      });
+
+      const rootConfig = {
+        dryRun: false,
+        exclude: ["node_modules"],
+        include: ["**/*"],
+        // No workspaces configured
+      };
+
+      const result = await resolveWorkspaceConfigs({
+        cliConfig: {},
+        cwd: mockCwd,
+        profileConfig: {},
+        rootConfig,
+      });
+
+      expect(mockInferWorkspaces).toHaveBeenCalledWith(mockCwd);
+      expect(result).toHaveLength(3); // root + 2 inferred workspaces
+
+      // Check root excludes inferred workspace dirs
+      expect(result[0]?.config.exclude).toContain("packages/app");
+      expect(result[0]?.config.exclude).toContain("libs/utils");
+
+      // Check workspace configs exist
+      const appResult = result.find((r) => {
+        return r.dir === workspaceDir1;
+      });
+      const utilsResult = result.find((r) => {
+        return r.dir === workspaceDir2;
+      });
+
+      expect(appResult).toBeDefined();
+      expect(utilsResult).toBeDefined();
+
+      // Check that workspace-specific configurations are applied
+      expect(appResult?.config.exclude).toContain("node_modules");
+      expect(appResult?.config.exclude).not.toContain("build");
+
+      expect(utilsResult?.config.exclude).toContain("node_modules");
+      expect(utilsResult?.config.exclude).toContain("build");
+    });
+
+    it("should not infer workspaces when explicit workspaces are configured", async () => {
+      const rootConfig = {
+        dryRun: false,
+        exclude: ["node_modules"],
+        include: ["**/*"],
+        workspaces: {
+          "apps/*": {},
+        },
+      };
+
+      mockGlob.mockResolvedValue([]);
+
+      await resolveWorkspaceConfigs({
+        cliConfig: {},
+        cwd: mockCwd,
+        profileConfig: {},
+        rootConfig,
+      });
+
+      expect(mockInferWorkspaces).not.toHaveBeenCalled();
+    });
+
+    it("should handle when inference returns no workspaces", async () => {
+      mockInferWorkspaces.mockResolvedValue({});
+
+      const rootConfig = {
+        dryRun: false,
+        exclude: ["node_modules"],
+        include: ["**/*"],
+        // No workspaces configured
+      };
+
+      const result = await resolveWorkspaceConfigs({
+        cliConfig: {},
+        cwd: mockCwd,
+        profileConfig: {},
+        rootConfig,
+      });
+
+      expect(mockInferWorkspaces).toHaveBeenCalledWith(mockCwd);
+      expect(result).toHaveLength(1); // only root
+      expect(result[0]?.dir).toBe(mockCwd);
+    });
+
+    it("should handle empty workspaces object (should trigger inference)", async () => {
+      mockInferWorkspaces.mockResolvedValue({
+        "packages/lib": {},
+      });
+
+      const workspaceDir = resolve(mockCwd, "packages/lib");
+
+      mockGlob.mockResolvedValueOnce([workspaceDir]);
+
+      const rootConfig = {
+        dryRun: false,
+        exclude: ["node_modules"],
+        include: ["**/*"],
+        workspaces: {}, // Empty object should trigger inference
+      };
+
+      const result = await resolveWorkspaceConfigs({
+        cliConfig: {},
+        cwd: mockCwd,
+        profileConfig: {},
+        rootConfig,
+      });
+
+      expect(mockInferWorkspaces).toHaveBeenCalledWith(mockCwd);
+      expect(result).toHaveLength(2); // root + 1 inferred workspace
     });
   });
 
@@ -442,6 +596,7 @@ describe("resolveWorkspaceConfigs", () => {
         rootConfig,
       });
 
+      expect(mockInferWorkspaces).toHaveBeenCalledWith(mockCwd);
       expect(result).toHaveLength(1);
       expect(result[0]?.dir).toBe(mockCwd);
       expect(result[0]?.config).toStrictEqual({
