@@ -1,6 +1,6 @@
 {
   "name": "cleanx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Configurable cleaning tool for JavaScript/TypeScript projects",
   "keywords": [
     "clean",
