@@ -16,7 +16,7 @@ import { resolveWorkspaceConfigs } from "../utils/resolve-workspace-configs";
 interface RunCleanOptions {
   config?: string;
   cwd?: string;
-  dryRun: boolean;
+  dryRun?: boolean;
   exclude?: string[];
   include?: string[];
   profile: string;
@@ -44,7 +44,9 @@ export async function runClean(options: RunCleanOptions) {
   // eslint-disable-next-line no-console -- this is for a blank line before output
   console.log();
 
-  if (options.dryRun) {
+  const isDryRun = options.dryRun ?? rootConfig.dryRun ?? true;
+
+  if (isDryRun) {
     logger.warn(
       `Cleaning ${workspaces.length} ${plural(workspaces.length, "workspace")} in dry run mode`,
     );
@@ -72,11 +74,11 @@ export async function runClean(options: RunCleanOptions) {
         const showProgress = paths.length > PROGRESS_THRESHOLD;
 
         await deletePaths(paths, {
-          dryRun: config.dryRun,
+          isDryRun,
           onProgress: showProgress ? createProgressReporter(dir) : undefined,
         });
 
-        const dryRunSuffix = config.dryRun ? yellow(" (dry run)") : "";
+        const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
 
         logger.success(
           `Cleaned ${blue(dir)} ${gray(`${paths.length} paths`)}${dryRunSuffix}`,
@@ -99,7 +101,7 @@ export async function runClean(options: RunCleanOptions) {
 
   const endTime = performance.now();
   const duration = endTime - startTime;
-  const dryRunSuffix = options.dryRun ? yellow(" (dry run)") : "";
+  const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
 
   logger.success(
     `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully${dryRunSuffix} in ${gray(formatDuration(duration))}`,
