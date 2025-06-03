@@ -5,6 +5,6 @@ export default defineConfig({
   dts: true,
   entry: ["./src/{index,cli}.ts"],
   format: ["esm"],
-  minify: true,
-  shims: true,
+  platform: "node",
+  publint: true,
 });
