@@ -1,7 +1,10 @@
+import { relative } from "node:path";
+
 import { glob } from "tinyglobby";
 
 import type { CleanxOptions } from "../options";
 
+import { dedupe } from "./dedupe";
 import { mergeConfigs } from "./merge-configs";
 
 interface ResolveWorkspaceConfigsOptions {
@@ -19,7 +22,7 @@ export async function resolveWorkspaceConfigs({
 }: ResolveWorkspaceConfigsOptions) {
   const workspaces = rootConfig.workspaces ?? {};
 
-  const entries = await Promise.all(
+  const workspaceEntries = await Promise.all(
     Object.entries(workspaces).map(async ([pattern, override]) => {
       const dirs = await glob(pattern, {
         absolute: true,
@@ -41,16 +44,27 @@ export async function resolveWorkspaceConfigs({
     }),
   );
 
-  return [
-    {
-      config: mergeConfigs({
-        cli: cliConfig,
-        profile: profileConfig,
-        root: rootConfig,
-        workspace: {},
+  const flatEntries = workspaceEntries.flat();
+
+  const workspaceDirs = dedupe(
+    flatEntries
+      .map((entry) => {
+        return relative(cwd, entry.dir);
+      })
+      .filter((dir) => {
+        return dir !== "" && !dir.startsWith("..");
       }),
-      dir: cwd,
+  );
+
+  const rootConfigWithExcludes = mergeConfigs({
+    cli: cliConfig,
+    profile: profileConfig,
+    root: {
+      ...rootConfig,
+      exclude: [...(rootConfig.exclude ?? []), ...workspaceDirs],
     },
-    ...entries.flat(),
-  ];
+    workspace: {},
+  });
+
+  return [{ config: rootConfigWithExcludes, dir: cwd }, ...flatEntries];
 }
