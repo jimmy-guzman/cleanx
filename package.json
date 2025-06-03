@@ -42,7 +42,6 @@
   "prettier": "@jimmy.codes/prettier-config",
   "dependencies": {
     "ansis": "4.1.0",
-    "c12": "3.0.4",
     "citty": "0.1.6",
     "tinyglobby": "0.2.14",
     "unconfig": "7.3.2"
