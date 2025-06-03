@@ -30,6 +30,7 @@
     "typecheck",
     "unconfig",
     "unrs",
+    "vinxi",
     "vitest",
     "wagoid"
   ],
