@@ -18,7 +18,6 @@ export const main = defineCommand({
       type: "string",
     },
     dryRun: {
-      default: false,
       description: "Show what would be deleted without actually deleting",
       type: "boolean",
     },

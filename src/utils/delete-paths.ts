@@ -10,15 +10,15 @@ import {
 } from "../constants";
 
 interface DeletePathsOptions {
-  dryRun?: boolean;
+  isDryRun?: boolean;
   onProgress?: (deleted: number, total: number) => void;
 }
 
 export async function deletePaths(
   paths: string[],
-  { dryRun = false, onProgress }: DeletePathsOptions,
+  { isDryRun = false, onProgress }: DeletePathsOptions,
 ) {
-  if (dryRun) return;
+  if (isDryRun) return;
 
   const total = paths.length;
 

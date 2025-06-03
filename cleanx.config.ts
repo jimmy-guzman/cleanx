@@ -1,3 +1,3 @@
 import { defineConfig } from "./src/config";
 
-export default defineConfig({ dryRun: true });
+export default defineConfig({ dryRun: false });
