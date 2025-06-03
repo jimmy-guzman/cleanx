@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/jimmy-guzman/cleanx/compare/v1.0.5...v1.0.6) (2025-06-03)
+
+
+### Bug Fixes
+
+* 🐛 infer workspaces as advertised ([#11](https://github.com/jimmy-guzman/cleanx/issues/11)) ([c7370f2](https://github.com/jimmy-guzman/cleanx/commit/c7370f2240c46a3298895f4a6a712834e7d1878e))
+
 ## [1.0.5](https://github.com/jimmy-guzman/cleanx/compare/v1.0.4...v1.0.5) (2025-06-03)
 
 
