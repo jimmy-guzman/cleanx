@@ -1,5 +1,3 @@
-import { resolve } from "node:path";
-
 import { blue, gray, yellow } from "ansis";
 
 import { PROGRESS_THRESHOLD } from "../constants";
@@ -25,7 +23,7 @@ interface RunCleanOptions {
 export async function runClean(options: RunCleanOptions) {
   const startTime = performance.now();
 
-  const cwd = resolve(process.cwd(), options.cwd ?? "");
+  const cwd = options.cwd ?? process.cwd();
 
   const rootConfig = await loadConfig({ configPath: options.config, cwd });
 
