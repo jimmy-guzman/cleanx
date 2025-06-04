@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/jimmy-guzman/cleanx/compare/v1.0.6...v1.0.7) (2025-06-04)
+
+
+### Bug Fixes
+
+* 🐛 reliably resolve workspace configurations ([#12](https://github.com/jimmy-guzman/cleanx/issues/12)) ([3c0151a](https://github.com/jimmy-guzman/cleanx/commit/3c0151aeb56c8a61cbde51b0e0c5d0a3753f26b2))
+
 ## [1.0.6](https://github.com/jimmy-guzman/cleanx/compare/v1.0.5...v1.0.6) (2025-06-03)
 
 
