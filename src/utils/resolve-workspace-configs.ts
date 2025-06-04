@@ -1,12 +1,9 @@
-import { relative } from "node:path";
-
-import { glob } from "tinyglobby";
+import picomatch from "picomatch";
+import { isDynamicPattern } from "tinyglobby";
 
 import type { CleanxOptions } from "../options";
 
-import { dedupe } from "./dedupe";
 import { inferWorkspaces } from "./infer-workspaces";
-import { isWithinCwd } from "./is-within-cwd";
 import { mergeConfigs } from "./merge-configs";
 
 interface ResolveWorkspaceConfigsOptions {
@@ -22,53 +19,67 @@ export async function resolveWorkspaceConfigs({
   profileConfig,
   rootConfig,
 }: ResolveWorkspaceConfigsOptions) {
-  let workspaces = rootConfig.workspaces ?? {};
+  const inferredWorkspaces = await inferWorkspaces(cwd);
+  const inferredDirs = Object.keys(inferredWorkspaces);
+  const userOverrides = rootConfig.workspaces ?? {};
 
-  if (Object.keys(workspaces).length === 0) {
-    workspaces = await inferWorkspaces(cwd);
+  const workspaceConfigs = inferredDirs.map((dir) => {
+    return {
+      config: mergeConfigs({
+        cli: cliConfig,
+        profile: profileConfig,
+        root: rootConfig,
+        workspace: {},
+      }),
+      dir,
+    };
+  });
+
+  for (const [pattern, override] of Object.entries(userOverrides)) {
+    if (pattern === ".") continue;
+
+    const matches = isDynamicPattern(pattern)
+      ? inferredDirs.filter((dir) => {
+          return picomatch(pattern)(dir);
+        })
+      : inferredDirs.includes(pattern)
+        ? [pattern]
+        : [];
+
+    for (const dir of matches) {
+      const entry = workspaceConfigs.find((w) => {
+        return w.dir === dir;
+      });
+
+      if (entry) {
+        entry.config = mergeConfigs({
+          cli: cliConfig,
+          profile: profileConfig,
+          root: rootConfig,
+          workspace: override,
+        });
+      }
+    }
   }
 
-  const workspaceEntries = await Promise.all(
-    Object.entries(workspaces).map(async ([pattern, override]) => {
-      const dirs = await glob(pattern, {
-        absolute: true,
-        cwd,
-        onlyDirectories: true,
-      });
+  const nonRootDirs = workspaceConfigs
+    .map((w) => {
+      return w.dir;
+    })
+    .filter((dir) => {
+      return dir !== cwd;
+    });
 
-      return dirs.map((dir) => {
-        return {
-          config: mergeConfigs({
-            cli: cliConfig,
-            profile: profileConfig,
-            root: rootConfig,
-            workspace: override,
-          }),
-          dir,
-        };
-      });
-    }),
-  );
-
-  const flatEntries = workspaceEntries.flat();
-
-  const workspaceDirs = dedupe(
-    flatEntries
-      .map((entry) => {
-        return relative(cwd, entry.dir);
-      })
-      .filter(isWithinCwd),
-  );
-
-  const rootConfigWithExcludes = mergeConfigs({
+  const rootOverride = userOverrides["."] ?? {};
+  const rootMergedConfig = mergeConfigs({
     cli: cliConfig,
     profile: profileConfig,
     root: {
       ...rootConfig,
-      exclude: [...(rootConfig.exclude ?? []), ...workspaceDirs],
+      exclude: [...(rootConfig.exclude ?? []), ...nonRootDirs],
     },
-    workspace: {},
+    workspace: rootOverride,
   });
 
-  return [{ config: rootConfigWithExcludes, dir: cwd }, ...flatEntries];
+  return [{ config: rootMergedConfig, dir: cwd }, ...workspaceConfigs];
 }

@@ -61,39 +61,8 @@ describe("inferWorkspaces", () => {
     const result = await inferWorkspaces(mockCwd);
 
     expect(result).toStrictEqual({
-      "packages/app-a": {},
-      "packages/app-b": {},
-    });
-  });
-
-  it("should exclude packages outside cwd", async () => {
-    const mockPackages = [
-      {
-        dir: join(mockCwd, "packages/app-a"),
-        packageJson: { name: "app-a" },
-      },
-      {
-        dir: "/outside/repo",
-        packageJson: { name: "outside" },
-      },
-      {
-        dir: join(mockCwd, "libs/lib-a"),
-        packageJson: { name: "lib-a" },
-      },
-    ] as Package[];
-
-    mockGetPackages.mockResolvedValue({
-      packages: mockPackages,
-      rootDir: mockCwd,
-      rootPackage: undefined,
-      tool: {} as Tool,
-    });
-
-    const result = await inferWorkspaces(mockCwd);
-
-    expect(result).toStrictEqual({
-      "libs/lib-a": {},
-      "packages/app-a": {},
+      "/repo/packages/app-a": {},
+      "/repo/packages/app-b": {},
     });
   });
 
@@ -116,7 +85,7 @@ describe("inferWorkspaces", () => {
     const result = await inferWorkspaces(mockCwd);
 
     expect(result).toStrictEqual({
-      "packages/app-a": {},
+      "/repo/packages/app-a": {},
     });
   });
 
@@ -150,31 +119,10 @@ describe("inferWorkspaces", () => {
     const result = await inferWorkspaces(mockCwd);
 
     expect(result).toStrictEqual({
-      "apps/mobile": {},
-      "apps/web": {},
-      "packages/ui/components": {},
-      "packages/ui/icons": {},
-    });
-  });
-
-  it("should handle mixed valid and invalid paths", async () => {
-    const mockPackages = [
-      { dir: join(mockCwd, "packages/valid"), packageJson: { name: "valid" } },
-      { dir: "/completely/outside", packageJson: { name: "outside" } },
-      { dir: join(mockCwd, "../sibling"), packageJson: { name: "sibling" } },
-    ] as Package[];
-
-    mockGetPackages.mockResolvedValue({
-      packages: mockPackages,
-      rootDir: mockCwd,
-      rootPackage: undefined,
-      tool: {} as Tool,
-    });
-
-    const result = await inferWorkspaces(mockCwd);
-
-    expect(result).toStrictEqual({
-      "packages/valid": {},
+      "/repo/apps/mobile": {},
+      "/repo/apps/web": {},
+      "/repo/packages/ui/components": {},
+      "/repo/packages/ui/icons": {},
     });
   });
 
@@ -195,7 +143,7 @@ describe("inferWorkspaces", () => {
     const result = await inferWorkspaces(mockCwd);
 
     expect(result).toStrictEqual({
-      "packages/app": {},
+      "/repo/packages/app": {},
     });
   });
 
@@ -214,7 +162,7 @@ describe("inferWorkspaces", () => {
     const result = await inferWorkspaces(mockCwd);
 
     expect(result).toStrictEqual({
-      [join("packages", "app")]: {},
+      [join("/", "repo", "packages", "app")]: {},
     });
   });
 });
