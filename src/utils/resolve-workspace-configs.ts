@@ -20,25 +20,36 @@ export async function resolveWorkspaceConfigs({
   rootConfig,
 }: ResolveWorkspaceConfigsOptions) {
   const inferredWorkspaces = await inferWorkspaces(cwd);
-  const inferredDirs = Object.keys(inferredWorkspaces);
   const userOverrides = rootConfig.workspaces ?? {};
 
-  const workspaceConfigs = inferredDirs.map((dir) => {
+  const workspaceConfigs = inferredWorkspaces.map((workspace) => {
+    const otherWorkspaceExclusions = inferredWorkspaces
+      .filter((other) => {
+        return other.dir !== workspace.dir;
+      })
+      .map((other) => {
+        return `*(../)**/${other.packageJson.name}/**/*`;
+      });
+
     return {
       config: mergeConfigs({
         cli: cliConfig,
         profile: profileConfig,
         root: rootConfig,
-        workspace: {},
+        workspace: { exclude: otherWorkspaceExclusions },
       }),
-      dir,
+      dir: workspace.dir,
     };
+  });
+
+  const inferredDirs = inferredWorkspaces.map((workspace) => {
+    return workspace.dir;
   });
 
   for (const [pattern, override] of Object.entries(userOverrides)) {
     if (pattern === ".") continue;
 
-    const matches = isDynamicPattern(pattern)
+    const matchingDirs = isDynamicPattern(pattern)
       ? inferredDirs.filter((dir) => {
           return picomatch(pattern)(dir);
         })
@@ -46,13 +57,13 @@ export async function resolveWorkspaceConfigs({
         ? [pattern]
         : [];
 
-    for (const dir of matches) {
-      const entry = workspaceConfigs.find((w) => {
-        return w.dir === dir;
+    for (const dir of matchingDirs) {
+      const workspaceConfig = workspaceConfigs.find((config) => {
+        return config.dir === dir;
       });
 
-      if (entry) {
-        entry.config = mergeConfigs({
+      if (workspaceConfig) {
+        workspaceConfig.config = mergeConfigs({
           cli: cliConfig,
           profile: profileConfig,
           root: rootConfig,
@@ -62,24 +73,22 @@ export async function resolveWorkspaceConfigs({
     }
   }
 
-  const nonRootDirs = workspaceConfigs
-    .map((w) => {
-      return w.dir;
-    })
-    .filter((dir) => {
-      return dir !== cwd;
-    });
-
-  const rootOverride = userOverrides["."] ?? {};
-  const rootMergedConfig = mergeConfigs({
-    cli: cliConfig,
-    profile: profileConfig,
-    root: {
-      ...rootConfig,
-      exclude: [...(rootConfig.exclude ?? []), ...nonRootDirs],
-    },
-    workspace: rootOverride,
+  const workspaceExclusions = inferredWorkspaces.flatMap((workspace) => {
+    return [workspace.dir, `**/${workspace.packageJson.name}/**/*`];
   });
 
-  return [{ config: rootMergedConfig, dir: cwd }, ...workspaceConfigs];
+  const rootResult = {
+    config: mergeConfigs({
+      cli: cliConfig,
+      profile: profileConfig,
+      root: {
+        ...rootConfig,
+        exclude: [...(rootConfig.exclude ?? []), ...workspaceExclusions],
+      },
+      workspace: userOverrides["."] ?? {},
+    }),
+    dir: cwd,
+  };
+
+  return [rootResult, ...workspaceConfigs];
 }
