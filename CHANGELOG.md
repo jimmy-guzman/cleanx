@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/jimmy-guzman/cleanx/compare/v1.0.7...v1.0.8) (2025-06-12)
+
+
+### Bug Fixes
+
+* 🐛 stop deleting workspaces, always ([#13](https://github.com/jimmy-guzman/cleanx/issues/13)) ([5e95ab2](https://github.com/jimmy-guzman/cleanx/commit/5e95ab21ce89bf133d53862226023867c8da3977))
+
 ## [1.0.7](https://github.com/jimmy-guzman/cleanx/compare/v1.0.6...v1.0.7) (2025-06-04)
 
 
