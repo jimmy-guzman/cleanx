@@ -14,15 +14,18 @@ vi.mock("./infer-workspaces", () => {
 });
 
 const { inferWorkspaces } = await import("./infer-workspaces");
+const { isDynamicPattern } = await import("tinyglobby");
 
 const mockInferWorkspaces = vi.mocked(inferWorkspaces);
+const mockIsDynamicPattern = vi.mocked(isDynamicPattern);
 
 describe("resolveWorkspaceConfigs", () => {
   const mockCwd = "/project";
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockInferWorkspaces.mockResolvedValue({});
+    mockInferWorkspaces.mockResolvedValue([]);
+    mockIsDynamicPattern.mockReturnValue(false);
   });
 
   it("should return root config when no workspaces are defined", async () => {
@@ -53,9 +56,13 @@ describe("resolveWorkspaceConfigs", () => {
   it("should apply user overrides to inferred workspaces", async () => {
     const workspaceDir = "packages/app";
 
-    mockInferWorkspaces.mockResolvedValue({
-      [workspaceDir]: {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: workspaceDir,
+        packageJson: { name: "app", version: "1.0.0" },
+        relativeDir: "packages/app",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: false,
@@ -90,9 +97,13 @@ describe("resolveWorkspaceConfigs", () => {
   it("should merge CLI, profile, root, and workspace configs", async () => {
     const workspaceDir = "packages/lib";
 
-    mockInferWorkspaces.mockResolvedValue({
-      [workspaceDir]: {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: workspaceDir,
+        packageJson: { name: "lib", version: "1.0.0" },
+        relativeDir: "packages/lib",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: false,
@@ -128,9 +139,13 @@ describe("resolveWorkspaceConfigs", () => {
   it("should dedupe excluded paths in workspace config", async () => {
     const workspaceDir = "packages/core";
 
-    mockInferWorkspaces.mockResolvedValue({
-      [workspaceDir]: {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: workspaceDir,
+        packageJson: { name: "core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: true,
@@ -168,7 +183,7 @@ describe("resolveWorkspaceConfigs", () => {
   });
 
   it("should handle '.' workspace override separately", async () => {
-    mockInferWorkspaces.mockResolvedValue({});
+    mockInferWorkspaces.mockResolvedValue([]);
 
     const rootConfig = {
       dryRun: false,
@@ -196,9 +211,13 @@ describe("resolveWorkspaceConfigs", () => {
   });
 
   it("should infer workspaces when config is missing or empty", async () => {
-    mockInferWorkspaces.mockResolvedValue({
-      "packages/app": {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "packages/app",
+        packageJson: { name: "app", version: "1.0.0" },
+        relativeDir: "packages/app",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: false,
@@ -219,9 +238,13 @@ describe("resolveWorkspaceConfigs", () => {
   });
 
   it("should ignore workspace overrides that don't match any inferred paths", async () => {
-    mockInferWorkspaces.mockResolvedValue({
-      "packages/app": {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "packages/app",
+        packageJson: { name: "app", version: "1.0.0" },
+        relativeDir: "packages/app",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: false,
@@ -248,10 +271,18 @@ describe("resolveWorkspaceConfigs", () => {
   });
 
   it("should apply multiple workspace overrides correctly", async () => {
-    mockInferWorkspaces.mockResolvedValue({
-      "apps/web": {},
-      "packages/core": {},
-    });
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "apps/web",
+        packageJson: { name: "web", version: "1.0.0" },
+        relativeDir: "apps/web",
+      },
+      {
+        dir: "packages/core",
+        packageJson: { name: "core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
 
     const rootConfig = {
       dryRun: false,
@@ -283,17 +314,118 @@ describe("resolveWorkspaceConfigs", () => {
     expect(core?.config.exclude).toContain("dist");
   });
 
-  it("should handle workspace that matches the root directory", async () => {
-    mockInferWorkspaces.mockResolvedValue({
-      [mockCwd]: {},
-    });
+  it("should exclude other workspaces from each workspace config", async () => {
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "apps/web",
+        packageJson: { name: "web", version: "1.0.0" },
+        relativeDir: "apps/web",
+      },
+      {
+        dir: "packages/core",
+        packageJson: { name: "core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
 
     const rootConfig = {
-      dryRun: true,
+      dryRun: false,
+      exclude: [],
+      include: ["**/*"],
+      workspaces: {},
+    };
+
+    const result = await resolveWorkspaceConfigs({
+      cliConfig: {},
+      cwd: mockCwd,
+      profileConfig: {},
+      rootConfig,
+    });
+
+    const web = result.find((r) => {
+      return r.dir === "apps/web";
+    });
+    const core = result.find((r) => {
+      return r.dir === "packages/core";
+    });
+
+    // Each workspace should exclude the other workspace
+    expect(web?.config.exclude).toContain("*(../)**/core/**/*");
+    expect(core?.config.exclude).toContain("*(../)**/web/**/*");
+  });
+
+  it("should exclude workspace directories and package name patterns from root config", async () => {
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "apps/web",
+        packageJson: { name: "web-app", version: "1.0.0" },
+        relativeDir: "apps/web",
+      },
+      {
+        dir: "packages/core",
+        packageJson: { name: "@company/core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
+
+    const rootConfig = {
+      dryRun: false,
+      exclude: ["*.log"],
+      include: ["**/*"],
+      workspaces: {},
+    };
+
+    const result = await resolveWorkspaceConfigs({
+      cliConfig: {},
+      cwd: mockCwd,
+      profileConfig: {},
+      rootConfig,
+    });
+
+    const rootResult = result[0];
+
+    // Root should exclude workspace directories
+    expect(rootResult?.config.exclude).toContain("apps/web");
+    expect(rootResult?.config.exclude).toContain("packages/core");
+
+    // Root should exclude package name patterns
+    expect(rootResult?.config.exclude).toContain("**/web-app/**/*");
+    expect(rootResult?.config.exclude).toContain("**/@company/core/**/*");
+
+    // Should preserve original excludes
+    expect(rootResult?.config.exclude).toContain("*.log");
+  });
+
+  it("should handle dynamic pattern matching for workspace overrides", async () => {
+    mockIsDynamicPattern.mockImplementation((pattern) => {
+      return pattern.includes("*");
+    });
+
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "apps/web",
+        packageJson: { name: "web", version: "1.0.0" },
+        relativeDir: "apps/web",
+      },
+      {
+        dir: "apps/mobile",
+        packageJson: { name: "mobile", version: "1.0.0" },
+        relativeDir: "apps/mobile",
+      },
+      {
+        dir: "packages/core",
+        packageJson: { name: "core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
+
+    const rootConfig = {
+      dryRun: false,
       exclude: [],
       include: ["**/*"],
       workspaces: {
-        [mockCwd]: { exclude: ["dist"] },
+        "apps/*": { exclude: ["build"] },
+        "packages/*": { exclude: ["dist"] },
       },
     };
 
@@ -304,11 +436,67 @@ describe("resolveWorkspaceConfigs", () => {
       rootConfig,
     });
 
-    const root = result[0];
-    const workspace = result[1];
+    const web = result.find((r) => {
+      return r.dir === "apps/web";
+    });
+    const mobile = result.find((r) => {
+      return r.dir === "apps/mobile";
+    });
+    const core = result.find((r) => {
+      return r.dir === "packages/core";
+    });
 
-    expect(root?.config.exclude).not.toContain(mockCwd);
-    expect(workspace?.dir).toBe(mockCwd);
-    expect(workspace?.config.exclude).toContain("dist");
+    // Apps should get "build" exclusion
+    expect(web?.config.exclude).toContain("build");
+    expect(mobile?.config.exclude).toContain("build");
+
+    // Packages should get "dist" exclusion
+    expect(core?.config.exclude).toContain("dist");
+  });
+
+  it("should override workspace exclusions when user provides specific config", async () => {
+    mockInferWorkspaces.mockResolvedValue([
+      {
+        dir: "apps/web",
+        packageJson: { name: "web", version: "1.0.0" },
+        relativeDir: "apps/web",
+      },
+      {
+        dir: "packages/core",
+        packageJson: { name: "core", version: "1.0.0" },
+        relativeDir: "packages/core",
+      },
+    ]);
+
+    const rootConfig = {
+      dryRun: false,
+      exclude: ["node_modules"],
+      include: ["**/*"],
+      workspaces: {
+        "apps/web": { exclude: ["custom-build"] },
+      },
+    };
+
+    const result = await resolveWorkspaceConfigs({
+      cliConfig: {},
+      cwd: mockCwd,
+      profileConfig: {},
+      rootConfig,
+    });
+
+    const web = result.find((r) => {
+      return r.dir === "apps/web";
+    });
+    const core = result.find((r) => {
+      return r.dir === "packages/core";
+    });
+
+    // Web workspace should have user override (no automatic other-workspace exclusions)
+    expect(web?.config.exclude).toContain("node_modules"); // from root
+    expect(web?.config.exclude).toContain("custom-build"); // from workspace override
+    expect(web?.config.exclude).not.toContain("*(../)**/core/**/*"); // overridden
+
+    // Core workspace should have automatic exclusions (no user override)
+    expect(core?.config.exclude).toContain("*(../)**/web/**/*");
   });
 });

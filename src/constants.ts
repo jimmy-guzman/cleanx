@@ -51,7 +51,14 @@ export const PERCENTAGE_MULTIPLIER = 100;
 
 export const BUILTIN_PROFILES: Record<string, Partial<CleanxOptions>> = {
   default: {
-    exclude: [".env", ".env.*", "package.json", ".git", "node_modules"],
+    exclude: [
+      ".env",
+      ".env.*",
+      "package.json",
+      ".git",
+      "**/.git/**/*",
+      "node_modules",
+    ],
     include: [
       "dist",
       "build",
@@ -76,7 +83,7 @@ export const BUILTIN_PROFILES: Record<string, Partial<CleanxOptions>> = {
     ],
   },
   full: {
-    exclude: [".env", ".env.*", "package.json", ".git"],
+    exclude: [".env", ".env.*", "package.json", ".git", "**/.git/**/*"],
     include: [
       "dist",
       "build",

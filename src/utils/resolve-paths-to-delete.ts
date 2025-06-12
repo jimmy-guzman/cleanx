@@ -15,6 +15,7 @@ export async function resolvePathsToDelete({
     absolute: true,
     cwd: dir,
     dot: true,
+    followSymbolicLinks: false,
     ignore: exclude,
   });
 
