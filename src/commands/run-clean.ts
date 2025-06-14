@@ -4,12 +4,10 @@ import { PROGRESS_THRESHOLD } from "../constants";
 import { createProgressReporter } from "../utils/create-progress-reporter";
 import { deletePaths } from "../utils/delete-paths";
 import { formatDuration } from "../utils/format-duration";
-import { loadConfig } from "../utils/load-config";
 import { logger } from "../utils/logger";
 import { plural } from "../utils/plural";
+import { resolveConfigs } from "../utils/resolve-configs";
 import { resolvePathsToDelete } from "../utils/resolve-paths-to-delete";
-import { resolveProfile } from "../utils/resolve-profile";
-import { resolveWorkspaceConfigs } from "../utils/resolve-workspace-configs";
 
 interface RunCleanOptions {
   config?: string;
@@ -22,27 +20,19 @@ interface RunCleanOptions {
 
 export async function runClean(options: RunCleanOptions) {
   const startTime = performance.now();
-
   const cwd = options.cwd ?? process.cwd();
 
-  const rootConfig = await loadConfig({ configPath: options.config, cwd });
-
-  const profileConfig = resolveProfile({
-    profile: options.profile,
-    rootConfig,
-  });
-
-  const workspaces = await resolveWorkspaceConfigs({
-    cliConfig: options,
+  const { dryRun: isDryRun, workspaces } = await resolveConfigs({
+    config: options.config,
     cwd,
-    profileConfig,
-    rootConfig,
+    dryRun: options.dryRun,
+    exclude: options.exclude,
+    include: options.include,
+    profile: options.profile,
   });
 
   // eslint-disable-next-line no-console -- this is for a blank line before output
   console.log();
-
-  const isDryRun = options.dryRun ?? rootConfig.dryRun ?? false;
 
   if (isDryRun) {
     logger.warn(
@@ -55,15 +45,15 @@ export async function runClean(options: RunCleanOptions) {
   }
 
   const results = await Promise.allSettled(
-    workspaces.map(async ({ config, dir }) => {
+    workspaces.map(async (workspace) => {
       const paths = await resolvePathsToDelete({
-        dir,
-        exclude: config.exclude,
-        include: config.include,
+        dir: workspace.dir,
+        exclude: workspace.config.exclude,
+        include: workspace.config.include,
       });
 
       if (paths.length === 0) {
-        logger.warn(`Skipping ${dir}`);
+        logger.warn(`Skipping ${workspace.dir}`);
 
         return { skipped: true, success: false };
       }
@@ -73,19 +63,21 @@ export async function runClean(options: RunCleanOptions) {
 
         await deletePaths(paths, {
           isDryRun,
-          onProgress: showProgress ? createProgressReporter(dir) : undefined,
+          onProgress: showProgress
+            ? createProgressReporter(workspace.dir)
+            : undefined,
         });
 
         const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
 
         logger.success(
-          `Cleaned ${blue(dir)} ${gray(`${paths.length} paths`)}${dryRunSuffix}`,
+          `Cleaned ${blue(workspace.dir)} ${gray(`${paths.length} paths`)}${dryRunSuffix}`,
         );
 
         return { skipped: false, success: true };
       } catch (error) {
         logger.error(
-          `Failed to clean ${dir}: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to clean ${workspace.dir}: ${error instanceof Error ? error.message : String(error)}`,
         );
 
         return { skipped: false, success: false };
