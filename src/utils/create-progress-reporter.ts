@@ -1,4 +1,4 @@
-import { blue, gray } from "ansis";
+import { styleText } from "node:util";
 
 import { PERCENTAGE_MULTIPLIER, PROGRESS_LOG_INTERVAL } from "../constants";
 import { logger } from "./logger";
@@ -22,7 +22,7 @@ export function createProgressReporter(dir: string) {
       deleted === total
     ) {
       logger.info(
-        `Cleaning ${blue(dir)} ${gray(`${deleted}/${total} paths (${percent}%)`)}`,
+        `Cleaning ${styleText("blue", dir)} ${styleText("gray", `${deleted}/${total} paths (${percent}%)`)}`,
       );
       lastLoggedPercent = percent;
     }

@@ -24,9 +24,7 @@ export async function deletePaths(
 
   if (total <= SMALL_BATCH_THRESHOLD) {
     await Promise.allSettled(
-      paths.map((path) => {
-        return rm(path, { force: true, recursive: true });
-      }),
+      paths.map((path) => rm(path, { force: true, recursive: true })),
     );
 
     onProgress?.(total, total);
@@ -48,9 +46,7 @@ export async function deletePaths(
 
   for (const [batchIndex, batch] of batches.entries()) {
     await Promise.allSettled(
-      batch.map((path) => {
-        return rm(path, { force: true, recursive: true });
-      }),
+      batch.map((path) => rm(path, { force: true, recursive: true })),
     );
 
     deleted += batch.length;

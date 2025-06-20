@@ -1,4 +1,4 @@
-import { blue, gray } from "ansis";
+import { styleText } from "node:util";
 
 import { PERCENTAGE_MULTIPLIER } from "../constants";
 import { createProgressReporter } from "./create-progress-reporter";
@@ -13,14 +13,11 @@ vi.mock("./logger", () => {
   };
 });
 
-// Mock ansis colors to return predictable strings for testing
-vi.mock("ansis", () => {
+// Mock util.styleText to return predictable strings for testing
+vi.mock("node:util", () => {
   return {
-    blue: vi.fn((text: string) => {
-      return `[BLUE]${text}[/BLUE]`;
-    }),
-    gray: vi.fn((text: string) => {
-      return `[GRAY]${text}[/GRAY]`;
+    styleText: vi.fn((color: string, text: string) => {
+      return `[${color.toUpperCase()}]${text}[/${color.toUpperCase()}]`;
     }),
   };
 });
@@ -205,14 +202,14 @@ describe("createProgressReporter", () => {
     });
   });
 
-  describe("integration with ansis colors", () => {
-    it("should call blue and gray color functions correctly", () => {
+  describe("integration with util.styleText", () => {
+    it("should call styleText with correct color and text parameters", () => {
       const reporter = createProgressReporter("/colorful/dir");
 
       reporter(25, 100);
 
-      expect(blue).toHaveBeenCalledWith("/colorful/dir");
-      expect(gray).toHaveBeenCalledWith("25/100 paths (25%)");
+      expect(styleText).toHaveBeenCalledWith("blue", "/colorful/dir");
+      expect(styleText).toHaveBeenCalledWith("gray", "25/100 paths (25%)");
     });
   });
 });

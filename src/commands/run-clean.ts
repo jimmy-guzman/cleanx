@@ -1,4 +1,4 @@
-import { blue, gray, yellow } from "ansis";
+import { styleText } from "node:util";
 
 import { PROGRESS_THRESHOLD } from "../constants";
 import { createProgressReporter } from "../utils/create-progress-reporter";
@@ -68,10 +68,10 @@ export async function runClean(options: RunCleanOptions) {
             : undefined,
         });
 
-        const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
+        const dryRunSuffix = isDryRun ? styleText("yellow", " (dry run)") : "";
 
         logger.success(
-          `Cleaned ${blue(workspace.dir)} ${gray(`${paths.length} paths`)}${dryRunSuffix}`,
+          `Cleaned ${styleText("blue", workspace.dir)} ${styleText("gray", `${paths.length} paths`)}${dryRunSuffix}`,
         );
 
         return { skipped: false, success: true };
@@ -85,15 +85,15 @@ export async function runClean(options: RunCleanOptions) {
     }),
   );
 
-  const successes = results.filter((r) => {
-    return r.status === "fulfilled" && r.value.success;
-  });
+  const successes = results.filter(
+    (r) => r.status === "fulfilled" && r.value.success,
+  );
 
   const endTime = performance.now();
   const duration = endTime - startTime;
-  const dryRunSuffix = isDryRun ? yellow(" (dry run)") : "";
+  const dryRunSuffix = isDryRun ? styleText("yellow", " (dry run)") : "";
 
   logger.success(
-    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${gray(formatDuration(duration))}${dryRunSuffix}`,
+    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${styleText("gray", formatDuration(duration))}${dryRunSuffix}`,
   );
 }
