@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/jimmy-guzman/cleanx/compare/v1.0.8...v1.1.0) (2025-06-20)
+
+
+### Bug Fixes
+
+* 🐛 clarify Node.js engine as ^20.19.0 || >=22.12.0 ([0e51d4f](https://github.com/jimmy-guzman/cleanx/commit/0e51d4ffac57f9dddd2b09594ac44bed1dc8cd59))
+
+
+### Features
+
+* ✨ replace `ansis` with Node.js `util.styleText` ([2930611](https://github.com/jimmy-guzman/cleanx/commit/29306113bc728d5cc0e8e7066cf7ada2782f20a7))
+
 ## [1.0.8](https://github.com/jimmy-guzman/cleanx/compare/v1.0.7...v1.0.8) (2025-06-12)
 
 
