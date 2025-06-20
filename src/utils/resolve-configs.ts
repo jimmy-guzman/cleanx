@@ -21,8 +21,8 @@ export async function resolveConfigs(options: ResolveConfigsOptions) {
     cwd: options.cwd,
   });
 
-  const builtinProfile = BUILTIN_PROFILES[options.profile] ?? {};
-  const userProfileOverride = rootConfig.profiles?.[options.profile] ?? {};
+  const builtinProfile = BUILTIN_PROFILES[options.profile];
+  const userProfileOverride = rootConfig.profiles?.[options.profile];
   const mergedProfileConfig = {
     ...builtinProfile,
     ...userProfileOverride,
@@ -32,12 +32,8 @@ export async function resolveConfigs(options: ResolveConfigsOptions) {
 
   const workspaceConfigs = discoveredWorkspaces.map((workspace) => {
     const workspaceIsolationExclusions = discoveredWorkspaces
-      .filter((other) => {
-        return other.dir !== workspace.dir;
-      })
-      .map((other) => {
-        return `*(../)**/${other.packageJson.name}/**/*`;
-      });
+      .filter((other) => other.dir !== workspace.dir)
+      .map((other) => `*(../)**/${other.packageJson.name}/**/*`);
 
     const config = {
       exclude: dedupe([
@@ -61,24 +57,16 @@ export async function resolveConfigs(options: ResolveConfigsOptions) {
   for (const [pattern, override] of Object.entries(userWorkspaceOverrides)) {
     if (pattern === ".") continue;
 
+    const isMatch = picomatch(pattern);
+
     const matchingWorkspaceDirs = isDynamicPattern(pattern)
-      ? workspaceConfigs
-          .filter((wc) => {
-            return picomatch(pattern)(wc.dir);
-          })
-          .map((wc) => {
-            return wc.dir;
-          })
-      : workspaceConfigs.some((wc) => {
-            return wc.dir === pattern;
-          })
+      ? workspaceConfigs.filter((wc) => isMatch(wc.dir)).map((wc) => wc.dir)
+      : workspaceConfigs.some((wc) => wc.dir === pattern)
         ? [pattern]
         : [];
 
     for (const dir of matchingWorkspaceDirs) {
-      const targetWorkspace = workspaceConfigs.find((wc) => {
-        return wc.dir === dir;
-      });
+      const targetWorkspace = workspaceConfigs.find((wc) => wc.dir === dir);
 
       if (targetWorkspace) {
         targetWorkspace.config = {
@@ -96,9 +84,7 @@ export async function resolveConfigs(options: ResolveConfigsOptions) {
   }
 
   const workspaceProtectionExclusions = discoveredWorkspaces.flatMap(
-    (workspace) => {
-      return [workspace.dir, `**/${workspace.packageJson.name}/**/*`];
-    },
+    (workspace) => [workspace.dir, `**/${workspace.packageJson.name}/**/*`],
   );
 
   const rootWorkspaceOverride = userWorkspaceOverrides["."] ?? {};

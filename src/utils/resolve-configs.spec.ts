@@ -135,9 +135,9 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const workspaceResult = result.workspaces.find((r) => {
-        return r.dir === workspaceDir;
-      });
+      const workspaceResult = result.workspaces.find(
+        (r) => r.dir === workspaceDir,
+      );
 
       expect(workspaceResult?.config.exclude).toStrictEqual(
         expect.arrayContaining([".cache", "node_modules", "dist", "temp"]),
@@ -172,17 +172,15 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const workspaceResult = result.workspaces.find((r) => {
-        return r.dir === workspaceDir;
-      });
+      const workspaceResult = result.workspaces.find(
+        (r) => r.dir === workspaceDir,
+      );
       const exclude = workspaceResult?.config.exclude ?? [];
 
-      const nodeModulesCount = exclude.filter((x) => {
-        return x === "node_modules";
-      }).length;
-      const distCount = exclude.filter((x) => {
-        return x === "dist";
-      }).length;
+      const nodeModulesCount = exclude.filter(
+        (x) => x === "node_modules",
+      ).length;
+      const distCount = exclude.filter((x) => x === "dist").length;
 
       expect(nodeModulesCount).toBe(1);
       expect(distCount).toBe(1);
@@ -256,9 +254,9 @@ describe("resolveConfigs", () => {
     });
 
     it("should handle dynamic pattern matching for workspace overrides", async () => {
-      mockIsDynamicPattern.mockImplementation((pattern) => {
-        return pattern.includes("*");
-      });
+      mockIsDynamicPattern.mockImplementation((pattern) =>
+        pattern.includes("*"),
+      );
 
       mockInferWorkspaces.mockResolvedValue([
         {
@@ -293,15 +291,9 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const web = result.workspaces.find((r) => {
-        return r.dir === "apps/web";
-      });
-      const mobile = result.workspaces.find((r) => {
-        return r.dir === "apps/mobile";
-      });
-      const core = result.workspaces.find((r) => {
-        return r.dir === "packages/core";
-      });
+      const web = result.workspaces.find((r) => r.dir === "apps/web");
+      const mobile = result.workspaces.find((r) => r.dir === "apps/mobile");
+      const core = result.workspaces.find((r) => r.dir === "packages/core");
 
       // Apps should get "build" exclusion
       expect(web?.config.exclude).toContain("build");
@@ -452,12 +444,12 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const uiWorkspace = result.workspaces.find((w) => {
-        return w.dir === "packages/ui";
-      });
-      const apiWorkspace = result.workspaces.find((w) => {
-        return w.dir === "packages/api";
-      });
+      const uiWorkspace = result.workspaces.find(
+        (w) => w.dir === "packages/ui",
+      );
+      const apiWorkspace = result.workspaces.find(
+        (w) => w.dir === "packages/api",
+      );
 
       // EACH WORKSPACE MUST EXCLUDE ALL OTHER WORKSPACES
       expect(uiWorkspace?.config.exclude).toContain(
@@ -493,12 +485,8 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const web = result.workspaces.find((r) => {
-        return r.dir === "apps/web";
-      });
-      const core = result.workspaces.find((r) => {
-        return r.dir === "packages/core";
-      });
+      const web = result.workspaces.find((r) => r.dir === "apps/web");
+      const core = result.workspaces.find((r) => r.dir === "packages/core");
 
       // Each workspace should exclude the other workspace
       expect(web?.config.exclude).toContain("*(../)**/core/**/*");
@@ -580,21 +568,9 @@ describe("resolveConfigs", () => {
 
       // Should have root + 2 inferred workspaces
       expect(result.workspaces).toHaveLength(3);
-      expect(
-        result.workspaces.map((w) => {
-          return w.dir;
-        }),
-      ).toContain("packages/lib1");
-      expect(
-        result.workspaces.map((w) => {
-          return w.dir;
-        }),
-      ).toContain("packages/lib2");
-      expect(
-        result.workspaces.map((w) => {
-          return w.dir;
-        }),
-      ).toContain(mockCwd);
+      expect(result.workspaces.map((w) => w.dir)).toContain("packages/lib1");
+      expect(result.workspaces.map((w) => w.dir)).toContain("packages/lib2");
+      expect(result.workspaces.map((w) => w.dir)).toContain(mockCwd);
     });
 
     it("should handle workspace overrides that don't match existing workspaces", async () => {
@@ -625,18 +601,16 @@ describe("resolveConfigs", () => {
         profile: "default",
       });
 
-      const realWorkspace = result.workspaces.find((w) => {
-        return w.dir === "packages/real";
-      });
+      const realWorkspace = result.workspaces.find(
+        (w) => w.dir === "packages/real",
+      );
 
       // Should apply config for existing workspace
       expect(realWorkspace?.config.exclude).toContain("should-be-applied");
 
       // Should not crash or create phantom workspaces for nonexistent ones
       expect(
-        result.workspaces.find((w) => {
-          return w.dir === "packages/nonexistent";
-        }),
+        result.workspaces.find((w) => w.dir === "packages/nonexistent"),
       ).toBeUndefined();
     });
 
