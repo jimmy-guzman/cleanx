@@ -15,6 +15,11 @@
     "module": "ESNext",
     "noEmit": true,
 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
     "lib": ["ESNext"],
 
     "types": ["vitest/globals"]
