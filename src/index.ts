@@ -8,10 +8,6 @@ import { log } from "./utils/logger";
 const { values } = parseArgs({
   allowPositionals: false,
   options: {
-    "config": {
-      short: "c",
-      type: "string",
-    },
     "cwd": {
       default: process.cwd(),
       type: "string",
