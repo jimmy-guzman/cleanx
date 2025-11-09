@@ -7,7 +7,7 @@ export function createCleaningProgress(
   workspaceDir: string,
 ) {
   return (deleted: number, total: number) => {
-    const percent = Math.floor((deleted / total) * 100);
+    const percent = total > 0 ? Math.floor((deleted / total) * 100) : 100;
 
     updateLine(
       workspaceDir,
