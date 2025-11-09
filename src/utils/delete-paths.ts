@@ -9,12 +9,16 @@ export async function deletePaths(
   paths: string[],
   { isDryRun, onProgress }: DeletePathsOptions,
 ) {
-  let completed = 0;
+  const getNextCompleted = (() => {
+    let completed = 0;
+
+    return () => ++completed;
+  })();
 
   await Promise.all(
     paths.map(async (path) => {
       if (isDryRun) {
-        onProgress?.(++completed, paths.length, path);
+        onProgress?.(getNextCompleted(), paths.length, path);
 
         return;
       }
@@ -22,7 +26,7 @@ export async function deletePaths(
       try {
         await rm(path, { force: true, recursive: true });
 
-        onProgress?.(++completed, paths.length, path);
+        onProgress?.(getNextCompleted(), paths.length, path);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
 
