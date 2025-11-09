@@ -3,6 +3,7 @@ import { ms } from "ms";
 
 import { cleanWorkspace } from "@/utils/clean-workspace";
 import { createLineUpdater } from "@/utils/create-line-updater";
+import { getWorkspacePaths } from "@/utils/get-workspace-paths";
 import { dim, log, suffix } from "@/utils/logger";
 import { plural } from "@/utils/plural";
 
@@ -17,12 +18,8 @@ const CURSOR_SHOW = "\u001B[?25h";
 
 export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   const startTime = performance.now();
-  const { packages, rootPackage } = await getPackages(cwd);
-  const workspacePaths = [
-    ...new Set(
-      [rootPackage, ...packages].map((pkg) => pkg?.dir).filter(Boolean),
-    ),
-  ];
+  const packages = await getPackages(cwd);
+  const workspacePaths = getWorkspacePaths(packages);
   const totalWorkspaces = workspacePaths.length;
 
   log.line();

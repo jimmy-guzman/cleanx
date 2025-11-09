@@ -13,12 +13,12 @@ export async function deletePaths(
 
   await Promise.all(
     paths.map(async (path) => {
-      onProgress?.(++completed, paths.length, path);
-
       if (isDryRun) return;
 
       try {
         await rm(path, { force: true, recursive: true });
+
+        onProgress?.(++completed, paths.length, path);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
 

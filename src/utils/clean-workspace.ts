@@ -1,47 +1,8 @@
+import { createDeletionProgressHandler } from "./create-deletion-progress-handler";
+import { createProgressHandler } from "./create-progress-handler";
 import { deletePaths } from "./delete-paths";
-import { dim, ERROR, INFO, SUCCESS, suffix, WARN, ws } from "./logger";
+import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "./logger";
 import { resolvePaths } from "./resolve-paths";
-
-function createProgressHandler(
-  updateLine: (workspaceDir: string, content: string) => void,
-  workspaceDir: string,
-) {
-  return (
-    phase: "filtering" | "gitignore" | "scanning",
-    current?: number,
-    total?: number,
-  ) => {
-    if (phase === "gitignore") {
-      updateLine(
-        workspaceDir,
-        `${INFO} Reading .gitignore in ${ws(workspaceDir)}`,
-      );
-    } else if (phase === "scanning") {
-      updateLine(workspaceDir, `${INFO} Scanning ${ws(workspaceDir)}`);
-    } else if (current && total) {
-      const percent = Math.floor((current / total) * 100);
-
-      updateLine(
-        workspaceDir,
-        `${INFO} Filtering ${ws(workspaceDir)} ${dim(`${current}/${total} (${percent}%)`)}`,
-      );
-    }
-  };
-}
-
-function createDeletionProgressHandler(
-  updateLine: (workspaceDir: string, content: string) => void,
-  workspaceDir: string,
-) {
-  return (deleted: number, total: number) => {
-    const percent = Math.floor((deleted / total) * 100);
-
-    updateLine(
-      workspaceDir,
-      `${INFO} Cleaning ${ws(workspaceDir)} ${dim(`${deleted}/${total} (${percent}%)`)}`,
-    );
-  };
-}
 
 interface CleanWorkspaceOptions {
   dryRun: boolean;
