@@ -45,7 +45,6 @@ Usage:
   ${name} [options]
 
 Options:
-  -c, --config <path>       Path to config file
       --cwd <path>          Set working directory
   -d, --dry-run             Show what would be deleted without actually deleting
   -e, --exclude <pattern>   Patterns to exclude from deletion (can be used multiple times)
