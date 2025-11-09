@@ -13,7 +13,11 @@ export async function deletePaths(
 
   await Promise.all(
     paths.map(async (path) => {
-      if (isDryRun) return;
+      if (isDryRun) {
+        onProgress?.(++completed, paths.length, path);
+
+        return;
+      }
 
       try {
         await rm(path, { force: true, recursive: true });
