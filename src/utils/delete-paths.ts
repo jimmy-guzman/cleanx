@@ -9,17 +9,23 @@ export async function deletePaths(
   paths: string[],
   { isDryRun, onProgress }: DeletePathsOptions,
 ) {
-  for (const [index, path] of paths.entries()) {
-    onProgress?.(index + 1, paths.length, path);
+  let completed = 0;
 
-    if (isDryRun) continue;
+  await Promise.all(
+    paths.map(async (path) => {
+      onProgress?.(++completed, paths.length, path);
 
-    try {
-      await rm(path, { force: true, recursive: true });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      if (isDryRun) return;
 
-      throw new Error(`Failed to delete ${path}: ${message}`, { cause: error });
-    }
-  }
+      try {
+        await rm(path, { force: true, recursive: true });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+
+        throw new Error(`Failed to delete ${path}: ${message}`, {
+          cause: error,
+        });
+      }
+    }),
+  );
 }

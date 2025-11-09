@@ -19,7 +19,9 @@ export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   const startTime = performance.now();
   const { packages, rootPackage } = await getPackages(cwd);
   const workspacePaths = [
-    ...new Set([rootPackage, ...packages].flatMap((pkg) => pkg?.dir ?? [])),
+    ...new Set(
+      [rootPackage, ...packages].map((pkg) => pkg?.dir).filter(Boolean),
+    ),
   ];
   const totalWorkspaces = workspacePaths.length;
 
