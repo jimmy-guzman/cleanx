@@ -7,6 +7,8 @@ import { fdir } from "fdir";
 import ignore from "ignore";
 import { glob } from "tinyglobby";
 
+import { shouldDeleteFile } from "./should-delete-file";
+
 export async function findLocalGitignoreFiles(dir: string) {
   return glob([".gitignore", "**/.gitignore"], {
     absolute: true,
@@ -34,9 +36,7 @@ export async function findParentGitignoreFiles(dir: string) {
 
     // Stop at git root (if .git directory exists)
     try {
-      const gitDir = join(parentDir, ".git");
-
-      await readFile(join(gitDir, "config"), "utf8");
+      await access(join(parentDir, ".git"));
 
       break; // Found git root, stop here
     } catch {
@@ -89,23 +89,6 @@ function shouldExcludeFile(
   const relativePath = relative(baseDir, filePath);
 
   return Boolean(relativePath && excludeIg.ignores(relativePath));
-}
-
-function shouldDeleteFile(filePath: string, ignoreMap: Map<string, Ignore>) {
-  for (const [gitignoreDir, ig] of ignoreMap.entries()) {
-    const relativeToGitignore = relative(gitignoreDir, filePath);
-
-    // Skip if path is outside gitignore directory or is the directory itself
-    if (relativeToGitignore.startsWith("..") || !relativeToGitignore) {
-      continue;
-    }
-
-    if (ig.ignores(relativeToGitignore)) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 export function filterFilesToDelete(
