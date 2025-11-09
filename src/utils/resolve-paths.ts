@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 
 import type { Ignore } from "ignore";
 
@@ -84,7 +84,7 @@ async function scanFiles(dir: string) {
   return new fdir()
     .withFullPaths()
     .withDirs()
-    .exclude((dirName) => dirName === ".git")
+    .exclude((dirPath) => basename(dirPath) === ".git")
     .crawl(dir)
     .withPromise();
 }
