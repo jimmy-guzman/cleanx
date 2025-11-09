@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { basename, join, relative } from "node:path";
+import { access, readFile } from "node:fs/promises";
+import { basename, dirname, join, relative } from "node:path";
 
 import type { Ignore } from "ignore";
 
@@ -35,7 +35,7 @@ async function findParentGitignoreFiles(dir: string) {
     const parentGitignore = join(parentDir, ".gitignore");
 
     try {
-      await readFile(parentGitignore, "utf8");
+      await access(parentGitignore);
 
       parentGitignoreFiles.push(parentGitignore);
     } catch {
@@ -64,7 +64,7 @@ async function buildIgnoreMap(gitignoreFiles: string[]) {
   const ignoreMap = new Map<string, Ignore>();
 
   for (const gitignorePath of gitignoreFiles) {
-    const gitignoreDir = gitignorePath.replace(/\.gitignore$/, "");
+    const gitignoreDir = dirname(gitignorePath);
     const ig = ignore();
 
     try {
