@@ -1,7 +1,9 @@
-import { dim, INFO, ws } from "./logger";
+import { dim, INFO, ws } from "@/lib/colors";
 
-export function createProgressHandler(
-  updateLine: (workspaceDir: string, content: string) => void,
+import type { LineUpdater } from "./line-updater";
+
+export function createPreparingProgress(
+  updateLine: LineUpdater,
   workspaceDir: string,
 ) {
   return (

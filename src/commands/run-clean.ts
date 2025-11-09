@@ -1,11 +1,12 @@
 import { getPackages } from "@manypkg/get-packages";
 import { ms } from "ms";
 
-import { cleanWorkspace } from "@/utils/clean-workspace";
-import { createLineUpdater } from "@/utils/create-line-updater";
-import { getWorkspacePaths } from "@/utils/get-workspace-paths";
-import { dim, log, suffix } from "@/utils/logger";
-import { plural } from "@/utils/plural";
+import { cleanWorkspace } from "@/lib/clean-workspace";
+import { dim, suffix } from "@/lib/colors";
+import { getWorkspacePaths } from "@/lib/get-workspace-paths";
+import { log } from "@/lib/logging/log";
+import { createLineUpdater } from "@/lib/progress/line-updater";
+import { plural } from "@/lib/utils/plural";
 
 interface RunCleanOptions {
   cwd: string;

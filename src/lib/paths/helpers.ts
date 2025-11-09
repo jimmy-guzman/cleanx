@@ -7,17 +7,7 @@ import { fdir } from "fdir";
 import ignore from "ignore";
 import { glob } from "tinyglobby";
 
-interface ResolvePathsOptions {
-  dir: string;
-  exclude: string[];
-  onProgress: (
-    phase: "filtering" | "gitignore" | "scanning",
-    current?: number,
-    total?: number,
-  ) => void;
-}
-
-async function findLocalGitignoreFiles(dir: string) {
+export async function findLocalGitignoreFiles(dir: string) {
   return glob([".gitignore", "**/.gitignore"], {
     absolute: true,
     cwd: dir,
@@ -26,7 +16,7 @@ async function findLocalGitignoreFiles(dir: string) {
   });
 }
 
-async function findParentGitignoreFiles(dir: string) {
+export async function findParentGitignoreFiles(dir: string) {
   const parentGitignoreFiles: string[] = [];
   let currentDir = dir;
   let parentDir = join(currentDir, "..");
@@ -60,7 +50,7 @@ async function findParentGitignoreFiles(dir: string) {
   return parentGitignoreFiles;
 }
 
-async function buildIgnoreMap(gitignoreFiles: string[]) {
+export async function buildIgnoreMap(gitignoreFiles: string[]) {
   const ignoreMap = new Map<string, Ignore>();
 
   for (const gitignorePath of gitignoreFiles) {
@@ -80,7 +70,7 @@ async function buildIgnoreMap(gitignoreFiles: string[]) {
   return ignoreMap;
 }
 
-async function scanFiles(dir: string) {
+export async function scanFiles(dir: string) {
   return new fdir()
     .withFullPaths()
     .withDirs()
@@ -118,7 +108,7 @@ function shouldDeleteFile(filePath: string, ignoreMap: Map<string, Ignore>) {
   return false;
 }
 
-function filterFilesToDelete(
+export function filterFilesToDelete(
   allFiles: string[],
   dir: string,
   excludeIg: Ignore | null,
@@ -146,44 +136,4 @@ function filterFilesToDelete(
   }
 
   return pathsToDelete;
-}
-
-export async function resolvePaths(options: ResolvePathsOptions) {
-  const { dir, exclude = [], onProgress } = options;
-
-  onProgress("gitignore");
-
-  const [localGitignoreFiles, parentGitignoreFiles] = await Promise.all([
-    findLocalGitignoreFiles(dir),
-    findParentGitignoreFiles(dir),
-  ]);
-
-  const allGitignoreFiles = [
-    ...parentGitignoreFiles.toReversed(),
-    ...localGitignoreFiles,
-  ];
-
-  if (allGitignoreFiles.length === 0) {
-    return [];
-  }
-
-  const ignoreMap = await buildIgnoreMap(allGitignoreFiles);
-
-  onProgress("scanning");
-
-  const allFiles = await scanFiles(dir);
-
-  onProgress("filtering", 0, allFiles.length);
-
-  const excludeIg = exclude.length > 0 ? ignore().add(exclude) : null;
-
-  return filterFilesToDelete(
-    allFiles,
-    dir,
-    excludeIg,
-    ignoreMap,
-    (current, total) => {
-      onProgress("filtering", current, total);
-    },
-  );
 }

@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 
 import { description, name, version } from "package.json";
 
-import { log } from "./utils/logger";
+import { log } from "./lib/logging/log";
 
 const { values } = parseArgs({
   allowPositionals: false,

@@ -1,8 +1,9 @@
-import { createDeletionProgressHandler } from "./create-deletion-progress-handler";
-import { createProgressHandler } from "./create-progress-handler";
+import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "@/lib/colors";
+import { resolvePaths } from "@/lib/paths/resolve";
+import { createCleaningProgress } from "@/lib/progress/cleaning";
+import { createPreparingProgress } from "@/lib/progress/preparing";
+
 import { deletePaths } from "./delete-paths";
-import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "./logger";
-import { resolvePaths } from "./resolve-paths";
 
 interface CleanWorkspaceOptions {
   dryRun: boolean;
@@ -18,7 +19,7 @@ export async function cleanWorkspace(
     const paths = await resolvePaths({
       dir: workspaceDir,
       exclude,
-      onProgress: createProgressHandler(updateLine, workspaceDir),
+      onProgress: createPreparingProgress(updateLine, workspaceDir),
     });
 
     if (paths.length === 0) {
@@ -35,7 +36,7 @@ export async function cleanWorkspace(
     await deletePaths(paths, {
       isDryRun: dryRun,
       onProgress: showProgress
-        ? createDeletionProgressHandler(updateLine, workspaceDir)
+        ? createCleaningProgress(updateLine, workspaceDir)
         : undefined,
     });
 
