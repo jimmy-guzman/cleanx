@@ -39,13 +39,18 @@ export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
 
   const updateLine = createLineUpdater(workspacePaths, workspaceLines);
 
-  const results = await Promise.allSettled(
-    workspacePaths.map((workspaceDir) => {
-      return cleanWorkspace(workspaceDir, { dryRun, exclude, updateLine });
-    }),
-  );
+  let results: PromiseSettledResult<{ skipped: boolean; success: boolean }>[] =
+    [];
 
-  process.stdout.write(CURSOR_SHOW);
+  try {
+    results = await Promise.allSettled(
+      workspacePaths.map((workspaceDir) => {
+        return cleanWorkspace(workspaceDir, { dryRun, exclude, updateLine });
+      }),
+    );
+  } finally {
+    process.stdout.write(CURSOR_SHOW);
+  }
 
   const successes = results.filter(
     (r) => r.status === "fulfilled" && r.value.success,
