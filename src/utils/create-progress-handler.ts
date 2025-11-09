@@ -17,7 +17,7 @@ export function createProgressHandler(
     } else if (phase === "scanning") {
       updateLine(workspaceDir, `${INFO} Scanning ${ws(workspaceDir)}`);
     } else if (typeof current === "number" && typeof total === "number") {
-      const percent = Math.floor((current / total) * 100);
+      const percent = total > 0 ? Math.floor((current / total) * 100) : 100;
 
       updateLine(
         workspaceDir,
