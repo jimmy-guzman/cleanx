@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/jimmy-guzman/cleanx/compare/v1.1.0...v2.0.0) (2025-11-19)
+
+
+### Features
+
+* ✨ full rewrite to focus on around gitignore ([#17](https://github.com/jimmy-guzman/cleanx/issues/17)) ([e4148a3](https://github.com/jimmy-guzman/cleanx/commit/e4148a3fad28d455dd534d176673df4ed9c52725))
+
+
+### BREAKING CHANGES
+
+* 💥 no more configuration, it simply just uses
+`.gitignore` to clean
+
 # [1.1.0](https://github.com/jimmy-guzman/cleanx/compare/v1.0.8...v1.1.0) (2025-06-20)
 
 
