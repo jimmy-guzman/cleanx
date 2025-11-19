@@ -1,12 +1,15 @@
-import { configDefaults, defineConfig } from "vitest/config";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     coverage: {
-      exclude: [
-        ...(configDefaults.coverage.exclude ?? []),
-        "{cleanx,knip,tsdown}.config.*",
-      ],
+      thresholds: {
+        autoUpdate: true,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100,
+      },
     },
     globals: true,
   },

@@ -1,89 +1,56 @@
-import { styleText } from "node:util";
+import { getPackages } from "@manypkg/get-packages";
+import { ms } from "ms";
 
-import { PROGRESS_THRESHOLD } from "../constants";
-import { createProgressReporter } from "../utils/create-progress-reporter";
-import { deletePaths } from "../utils/delete-paths";
-import { formatDuration } from "../utils/format-duration";
-import { logger } from "../utils/logger";
-import { plural } from "../utils/plural";
-import { resolveConfigs } from "../utils/resolve-configs";
-import { resolvePathsToDelete } from "../utils/resolve-paths-to-delete";
+import { cleanWorkspace } from "@/lib/clean-workspace";
+import { dim, suffix } from "@/lib/colors";
+import { getWorkspacePaths } from "@/lib/get-workspace-paths";
+import { log } from "@/lib/logging/log";
+import { createLineUpdater } from "@/lib/progress/line-updater";
+import { plural } from "@/lib/utils/plural";
 
 interface RunCleanOptions {
-  config?: string;
-  cwd?: string;
-  dryRun?: boolean;
-  exclude?: string[];
-  include?: string[];
-  profile: string;
+  cwd: string;
+  dryRun: boolean;
+  exclude: string[];
 }
 
-export async function runClean(options: RunCleanOptions) {
+const CURSOR_HIDE = "\u001B[?25l";
+const CURSOR_SHOW = "\u001B[?25h";
+
+export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   const startTime = performance.now();
-  const cwd = options.cwd ?? process.cwd();
+  const packages = await getPackages(cwd);
+  const workspacePaths = getWorkspacePaths(packages);
+  const totalWorkspaces = workspacePaths.length;
 
-  const { dryRun: isDryRun, workspaces } = await resolveConfigs({
-    config: options.config,
-    cwd,
-    dryRun: options.dryRun,
-    exclude: options.exclude,
-    include: options.include,
-    profile: options.profile,
-  });
+  log.line();
+  log.info(
+    `Cleaning ${totalWorkspaces} ${plural(totalWorkspaces, "workspace")} ${suffix(dryRun)}`,
+  );
 
-  // eslint-disable-next-line no-console -- this is for a blank line before output
-  console.log();
+  const workspaceLines = new Map<string, number>();
 
-  if (isDryRun) {
-    logger.warn(
-      `Cleaning ${workspaces.length} ${plural(workspaces.length, "workspace")} in dry run mode`,
-    );
-  } else {
-    logger.info(
-      `Cleaning ${workspaces.length} ${plural(workspaces.length, "workspace")}`,
-    );
+  for (const [index, path] of workspacePaths.entries()) {
+    workspaceLines.set(path, index);
+    log.line();
   }
 
-  const results = await Promise.allSettled(
-    workspaces.map(async (workspace) => {
-      const paths = await resolvePathsToDelete({
-        dir: workspace.dir,
-        exclude: workspace.config.exclude,
-        include: workspace.config.include,
-      });
+  process.stdout.write(CURSOR_HIDE);
 
-      if (paths.length === 0) {
-        logger.warn(`Skipping ${workspace.dir}`);
+  const updateLine = createLineUpdater(workspacePaths, workspaceLines);
 
-        return { skipped: true, success: false };
-      }
+  let results: PromiseSettledResult<{ skipped: boolean; success: boolean }>[] =
+    [];
 
-      try {
-        const showProgress = paths.length > PROGRESS_THRESHOLD;
-
-        await deletePaths(paths, {
-          isDryRun,
-          onProgress: showProgress
-            ? createProgressReporter(workspace.dir)
-            : undefined,
-        });
-
-        const dryRunSuffix = isDryRun ? styleText("yellow", " (dry run)") : "";
-
-        logger.success(
-          `Cleaned ${styleText("blue", workspace.dir)} ${styleText("gray", `${paths.length} paths`)}${dryRunSuffix}`,
-        );
-
-        return { skipped: false, success: true };
-      } catch (error) {
-        logger.error(
-          `Failed to clean ${workspace.dir}: ${error instanceof Error ? error.message : String(error)}`,
-        );
-
-        return { skipped: false, success: false };
-      }
-    }),
-  );
+  try {
+    results = await Promise.allSettled(
+      workspacePaths.map((workspaceDir) => {
+        return cleanWorkspace(workspaceDir, { dryRun, exclude, updateLine });
+      }),
+    );
+  } finally {
+    process.stdout.write(CURSOR_SHOW);
+  }
 
   const successes = results.filter(
     (r) => r.status === "fulfilled" && r.value.success,
@@ -91,9 +58,9 @@ export async function runClean(options: RunCleanOptions) {
 
   const endTime = performance.now();
   const duration = endTime - startTime;
-  const dryRunSuffix = isDryRun ? styleText("yellow", " (dry run)") : "";
 
-  logger.success(
-    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${styleText("gray", formatDuration(duration))}${dryRunSuffix}`,
+  log.line();
+  log.success(
+    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${dim(ms(duration))}${suffix(dryRun)}`,
   );
 }
