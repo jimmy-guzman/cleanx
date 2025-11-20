@@ -31,16 +31,15 @@ export async function findParentGitignoreFiles(dir: string) {
 
       parentGitignoreFiles.push(parentGitignore);
     } catch {
-      // No gitignore at this level, continue up
+      /* empty */
     }
 
-    // Stop at git root (if .git directory exists)
     try {
       await access(join(parentDir, ".git"));
 
-      break; // Found git root, stop here
+      break;
     } catch {
-      // Not git root, continue up
+      /* empty */
     }
 
     currentDir = parentDir;

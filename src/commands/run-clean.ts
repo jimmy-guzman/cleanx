@@ -1,4 +1,3 @@
-import { getPackages } from "@manypkg/get-packages";
 import { ms } from "ms";
 
 import { cleanWorkspace } from "@/lib/clean-workspace";
@@ -19,8 +18,7 @@ const CURSOR_SHOW = "\u001B[?25h";
 
 export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   const startTime = performance.now();
-  const packages = await getPackages(cwd);
-  const workspacePaths = getWorkspacePaths(packages);
+  const workspacePaths = await getWorkspacePaths(cwd);
   const totalWorkspaces = workspacePaths.length;
 
   log.line();
