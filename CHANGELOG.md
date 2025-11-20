@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/jimmy-guzman/cleanx/compare/v2.0.1...v2.0.2) (2025-11-20)
+
+
+### Performance Improvements
+
+* ⚡️ optimize `getWorkspacePaths` ([#19](https://github.com/jimmy-guzman/cleanx/issues/19)) ([37a08a6](https://github.com/jimmy-guzman/cleanx/commit/37a08a637c4a8c88f8c5b899e4bebc6e788f9df8))
+
 ## [2.0.1](https://github.com/jimmy-guzman/cleanx/compare/v2.0.0...v2.0.1) (2025-11-20)
 
 
