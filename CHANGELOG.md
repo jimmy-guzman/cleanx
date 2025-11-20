@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/jimmy-guzman/cleanx/compare/v2.0.0...v2.0.1) (2025-11-20)
+
+
+### Bug Fixes
+
+* 🐛 move `@total-typescript/ts-reset` to dev deps ([#18](https://github.com/jimmy-guzman/cleanx/issues/18)) ([4283f31](https://github.com/jimmy-guzman/cleanx/commit/4283f318f10d28d78173865883d3fd816333a2ef))
+
 # [2.0.0](https://github.com/jimmy-guzman/cleanx/compare/v1.1.0...v2.0.0) (2025-11-19)
 
 
