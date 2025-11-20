@@ -1,134 +1,85 @@
+import type { Packages } from "@manypkg/get-packages";
+
+import { getPackages } from "@manypkg/get-packages";
+
 import { getWorkspacePaths } from "./get-workspace-paths";
 
+vi.mock("@manypkg/get-packages", () => ({
+  getPackages: vi.fn(),
+}));
+
+const mockedGetPackages = vi.mocked(getPackages);
+
 describe("getWorkspacePaths", () => {
-  it("should return empty array when packages is empty and no rootPackage", () => {
-    const result = getWorkspacePaths({ packages: [] });
+  const cwd = "/repo";
 
-    expect(result).toStrictEqual([]);
+  beforeEach(() => {
+    mockedGetPackages.mockReset();
   });
 
-  it("should return only rootPackage dir when packages is empty", () => {
-    const result = getWorkspacePaths({
-      packages: [],
-      rootPackage: { dir: "/root" },
-    });
-
-    expect(result).toStrictEqual(["/root"]);
-  });
-
-  it("should return package dirs when rootPackage is not provided", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: "/pkg2" }],
-    });
-
-    expect(result).toStrictEqual(["/pkg1", "/pkg2"]);
-  });
-
-  it("should combine rootPackage and packages dirs", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: "/pkg2" }],
-      rootPackage: { dir: "/root" },
-    });
-
-    expect(result).toStrictEqual(["/root", "/pkg1", "/pkg2"]);
-  });
-
-  it("should remove duplicate paths", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: "/pkg1" }, { dir: "/pkg2" }],
-      rootPackage: { dir: "/pkg1" },
-    });
-
-    expect(result).toStrictEqual(["/pkg1", "/pkg2"]);
-  });
-
-  it("should filter out packages without dir property", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, {}, { dir: "/pkg2" }],
-    });
-
-    expect(result).toStrictEqual(["/pkg1", "/pkg2"]);
-  });
-
-  it("should filter out packages with undefined dir", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: undefined }, { dir: "/pkg2" }],
-    });
-
-    expect(result).toStrictEqual(["/pkg1", "/pkg2"]);
-  });
-
-  it("should filter out rootPackage when dir is undefined", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }],
-      rootPackage: { dir: undefined },
-    });
-
-    expect(result).toStrictEqual(["/pkg1"]);
-  });
-
-  it("should handle rootPackage without dir property", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }],
-      rootPackage: {},
-    });
-
-    expect(result).toStrictEqual(["/pkg1"]);
-  });
-
-  it("should handle empty string dirs", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "" }, { dir: "/pkg1" }],
-      rootPackage: { dir: "" },
-    });
-
-    expect(result).toStrictEqual(["/pkg1"]);
-  });
-
-  it("should preserve order with duplicates removed (keeps first occurrence)", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: "/pkg2" }, { dir: "/pkg1" }],
-    });
-
-    expect(result).toStrictEqual(["/pkg1", "/pkg2"]);
-  });
-
-  it("should handle complex path strings", () => {
-    const result = getWorkspacePaths({
+  it("should return unique workspace directories including root", async () => {
+    mockedGetPackages.mockResolvedValue({
       packages: [
-        { dir: "/path/to/package-1" },
-        { dir: "./relative/path" },
-        { dir: "../parent/path" },
+        {
+          dir: "/repo/packages/a",
+        },
+        {
+          dir: "/repo/packages/b",
+        },
+        {
+          dir: "/repo/packages/a",
+        },
       ],
-      rootPackage: { dir: "/workspace/root" },
-    });
+      rootPackage: {
+        dir: "/repo",
+      },
+    } as Packages);
 
+    const result = await getWorkspacePaths(cwd);
+
+    expect(mockedGetPackages).toHaveBeenCalledWith(cwd);
     expect(result).toStrictEqual([
-      "/workspace/root",
-      "/path/to/package-1",
-      "./relative/path",
-      "../parent/path",
+      "/repo",
+      "/repo/packages/a",
+      "/repo/packages/b",
     ]);
   });
 
-  it("should handle all packages without dir", () => {
-    const result = getWorkspacePaths({
-      packages: [{}, {}, {}],
-    });
+  it("should filter out packages without a dir", async () => {
+    mockedGetPackages.mockResolvedValue({
+      packages: [
+        {
+          dir: "/repo/packages/a",
+        },
+        {
+          dir: undefined,
+        },
+        {
+          dir: undefined,
+        },
+      ],
+      rootPackage: {
+        dir: "/repo",
+      },
+    } as Packages);
 
-    expect(result).toStrictEqual([]);
+    const result = await getWorkspacePaths(cwd);
+
+    expect(result).toStrictEqual(["/repo", "/repo/packages/a"]);
   });
 
-  it("should maintain type safety with optional properties", () => {
-    const result = getWorkspacePaths({
-      packages: [{ dir: "/pkg1" }, { dir: "/pkg2" }],
-      rootPackage: { dir: "/root" },
-    });
+  it("should still work when rootPackage is missing or has no dir", async () => {
+    mockedGetPackages.mockResolvedValue({
+      packages: [
+        {
+          dir: "/repo/packages/a",
+        },
+      ],
+      rootPackage: {},
+    } as Packages);
 
-    expect(Array.isArray(result)).toBe(true);
+    const result = await getWorkspacePaths(cwd);
 
-    for (const path of result) {
-      expectTypeOf(path).toBeString();
-    }
+    expect(result).toStrictEqual(["/repo/packages/a"]);
   });
 });
