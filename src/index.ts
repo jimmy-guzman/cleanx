@@ -3,6 +3,7 @@ import { parseArgs } from "node:util";
 
 import { description, name, version } from "package.json";
 
+import { excludePatterns } from "./lib/exclude-patterns";
 import { log } from "./lib/logging/log";
 
 const { values } = parseArgs({
@@ -27,6 +28,12 @@ const { values } = parseArgs({
       short: "h",
       type: "boolean",
     },
+    "include": {
+      default: [],
+      multiple: true,
+      short: "i",
+      type: "string",
+    },
     "version": {
       short: "v",
       type: "boolean",
@@ -48,8 +55,14 @@ Options:
       --cwd <path>          Set working directory
   -d, --dry-run             Show what would be deleted without actually deleting
   -e, --exclude <pattern>   Patterns to exclude from deletion (can be used multiple times)
+  -i, --include <pattern>   Patterns to include for deletion even if excluded (can be used multiple times)
   -h, --help                Show this help message
   -v, --version             Show version number
+
+Examples:
+  ${name} --dry-run
+  ${name} --exclude 'node_modules/**' --include 'node_modules/.cache/**'
+  ${name} -e '*.log' -e '.env.*' -i '.env.example'
 `);
   process.exit(0);
 }
@@ -65,5 +78,5 @@ const { runClean } = await import("./commands/run-clean.js");
 await runClean({
   cwd: values.cwd,
   dryRun: values["dry-run"],
-  exclude: values.exclude,
+  exclude: excludePatterns(values.exclude, values.include),
 });

@@ -1,3 +1,5 @@
 import { defineConfig } from "@jimmy.codes/eslint-config";
 
-export default defineConfig();
+export default defineConfig({
+  vitest: { globals: "implicit" },
+});
