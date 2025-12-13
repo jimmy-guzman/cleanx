@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/jimmy-guzman/cleanx/compare/v2.0.2...v2.1.0) (2025-12-13)
+
+
+### Bug Fixes
+
+* 🐛 relax dependecy ranges ([92e7b9b](https://github.com/jimmy-guzman/cleanx/commit/92e7b9bb07ddef7c323590c168aabfc82280f2a5))
+
+
+### Features
+
+* ✨ add `--include` option for better DX ([cce5330](https://github.com/jimmy-guzman/cleanx/commit/cce533096cce465c7300fd17617e8b67960075b2))
+
 ## [2.0.2](https://github.com/jimmy-guzman/cleanx/compare/v2.0.1...v2.0.2) (2025-11-20)
 
 
