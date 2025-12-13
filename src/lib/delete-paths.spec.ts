@@ -114,7 +114,9 @@ describe("deletePaths", () => {
       mockRm.mockRejectedValue(new Error(errorMessage));
       const paths = ["/path/to/file1"];
 
-      await expect(deletePaths(paths, { isDryRun: false })).rejects.toThrow(
+      await expect(
+        deletePaths(paths, { isDryRun: false }),
+      ).rejects.toThrowError(
         `Failed to delete /path/to/file1: ${errorMessage}`,
       );
     });
@@ -130,7 +132,9 @@ describe("deletePaths", () => {
 
         expect.fail("Should have thrown an error");
       } catch (error) {
+        // eslint-disable-next-line vitest/no-conditional-expect -- this is to check the error type and cause
         expect(error).toBeInstanceOf(Error);
+        // eslint-disable-next-line vitest/no-conditional-expect -- this is to check the error type and cause
         expect((error as Error).cause).toBe(originalError);
       }
     });
@@ -139,27 +143,27 @@ describe("deletePaths", () => {
       mockRm.mockRejectedValue("string error");
       const paths = ["/path/to/file1"];
 
-      await expect(deletePaths(paths, { isDryRun: false })).rejects.toThrow(
-        "Failed to delete /path/to/file1: string error",
-      );
+      await expect(
+        deletePaths(paths, { isDryRun: false }),
+      ).rejects.toThrowError("Failed to delete /path/to/file1: string error");
     });
 
     it("should handle undefined error from rm", async () => {
       mockRm.mockRejectedValue(undefined);
       const paths = ["/path/to/file1"];
 
-      await expect(deletePaths(paths, { isDryRun: false })).rejects.toThrow(
-        "Failed to delete /path/to/file1: undefined",
-      );
+      await expect(
+        deletePaths(paths, { isDryRun: false }),
+      ).rejects.toThrowError("Failed to delete /path/to/file1: undefined");
     });
 
     it("should handle null error from rm", async () => {
       mockRm.mockRejectedValue(null);
       const paths = ["/path/to/file1"];
 
-      await expect(deletePaths(paths, { isDryRun: false })).rejects.toThrow(
-        "Failed to delete /path/to/file1: null",
-      );
+      await expect(
+        deletePaths(paths, { isDryRun: false }),
+      ).rejects.toThrowError("Failed to delete /path/to/file1: null");
     });
 
     it("should not call onProgress when deletion fails", async () => {
@@ -168,7 +172,7 @@ describe("deletePaths", () => {
 
       await expect(
         deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress }),
-      ).rejects.toThrow("Failed to delete /path/to/file1: Failed");
+      ).rejects.toThrowError("Failed to delete /path/to/file1: Failed");
 
       expect(mockOnProgress).not.toHaveBeenCalled();
     });
@@ -181,7 +185,9 @@ describe("deletePaths", () => {
 
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
 
-      await expect(deletePaths(paths, { isDryRun: false })).rejects.toThrow(
+      await expect(
+        deletePaths(paths, { isDryRun: false }),
+      ).rejects.toThrowError(
         "Failed to delete /path/to/file2: Permission denied",
       );
     });
@@ -222,7 +228,7 @@ describe("deletePaths", () => {
 
       await expect(
         deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress }),
-      ).rejects.toThrow("Failed to delete /path/to/file2: Failed");
+      ).rejects.toThrowError("Failed to delete /path/to/file2: Failed");
 
       // Progress should be called for successful deletions
       expect(mockRm).toHaveBeenCalledTimes(3);
