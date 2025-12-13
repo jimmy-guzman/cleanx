@@ -10,7 +10,7 @@
 ## Usage
 
 ```bash
-npx cleanx
+pnpx cleanx
 ```
 
 ## Features
@@ -46,10 +46,17 @@ Options:
 
 ```bash
 # Preview what will be deleted
-npx cleanx --dry-run
+pnpx cleanx --dry-run
 
 # Exclude specific patterns
-npx cleanx --exclude "*.log" --exclude ".env.local"
+pnpx cleanx --exclude '*.log' --exclude '.env.local'
+
+# Or use shorthand
+pnpx cleanx -e '*.env' -e 'node_modules/**'
+
+# Use negation patterns (note: use single quotes to prevent shell interpretation)
+# This excludes node_modules but still cleans the .cache folder inside it
+pnpx cleanx -e 'node_modules/**' -e '!node_modules/.cache/**'
 ```
 
 [packagephobia]: https://packagephobia.com/result?p=cleanx
