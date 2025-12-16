@@ -184,4 +184,16 @@ describe("parseExcludePatterns", () => {
     expect(result.exclude).toStrictEqual([]);
     expect(result.include).toStrictEqual([]);
   });
+
+  it("should normalize backslashes in negation patterns", () => {
+    const result = parseExcludePatterns([
+      "dist",
+      String.raw`!dist\keep`,
+      "node_modules",
+      String.raw`!node_modules\.cache`,
+    ]);
+
+    expect(result.exclude).toStrictEqual(["dist/**", "node_modules/**"]);
+    expect(result.include).toStrictEqual(["dist/keep", "node_modules/.cache"]);
+  });
 });

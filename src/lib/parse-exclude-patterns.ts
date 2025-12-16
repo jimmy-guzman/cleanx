@@ -30,7 +30,7 @@ export function parseExcludePatterns(patterns: string[]) {
 
   for (const pattern of patterns) {
     if (pattern.startsWith("!")) {
-      include.push(pattern.slice(1));
+      include.push(pattern.slice(1).replaceAll("\\", "/"));
     } else {
       exclude.push(normalizeExcludePattern(pattern));
     }
