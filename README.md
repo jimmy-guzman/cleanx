@@ -20,6 +20,7 @@ pnpx cleanx
 - Dry-run mode to preview changes
 - Exclude patterns to protect specific files
 - Include patterns to override exclusions
+- Brace expansion support for patterns
 
 ## Installation
 
@@ -68,6 +69,12 @@ pnpx cleanx -e '.env*' -i '.env.example'
 
 # Use negation patterns (alternative syntax)
 pnpx cleanx -e 'node_modules' -e '!node_modules/.cache/**'
+
+# Use brace expansion to include multiple patterns
+pnpx cleanx -e 'node_modules' -i 'node_modules/{.cache,.vite}/**'
+
+# Combine brace expansion with negation
+pnpx cleanx -e 'node_modules' -e '!node_modules/{.cache,.vite}/**'
 ```
 
 [packagephobia]: https://packagephobia.com/result?p=cleanx

@@ -1,5 +1,9 @@
+import expand from "brace-expansion";
+
+const windowsNormalize = (pattern: string) => pattern.replaceAll("\\", "/");
+
 function normalizeExcludePattern(pattern: string) {
-  const normalized = pattern.replaceAll("\\", "/");
+  const normalized = windowsNormalize(pattern);
 
   if (normalized.includes("**")) {
     return normalized;
@@ -24,16 +28,27 @@ function normalizeExcludePattern(pattern: string) {
   return `${normalized}/**`;
 }
 
-export function parseExcludePatterns(patterns: string[]) {
+export function parsePatterns(
+  excludePatterns: string[],
+  includePatterns: string[],
+) {
   const exclude: string[] = [];
   const include: string[] = [];
 
-  for (const pattern of patterns) {
+  for (const pattern of excludePatterns) {
     if (pattern.startsWith("!")) {
-      include.push(pattern.slice(1).replaceAll("\\", "/"));
+      const withoutBang = windowsNormalize(pattern.slice(1));
+
+      include.push(...expand(withoutBang));
     } else {
       exclude.push(normalizeExcludePattern(pattern));
     }
+  }
+
+  for (const pattern of includePatterns) {
+    const normalized = windowsNormalize(pattern);
+
+    include.push(...expand(normalized));
   }
 
   return { exclude, include };
