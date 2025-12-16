@@ -254,4 +254,28 @@ describe("parsePatterns", () => {
       "src/utils/*.spec.ts",
     ]);
   });
+
+  it("should expand braces in exclude patterns", () => {
+    const result = parsePatterns(["dist/{foo,bar}"], []);
+
+    expect(result.exclude).toStrictEqual(["dist/foo/**", "dist/bar/**"]);
+    expect(result.include).toStrictEqual([]);
+  });
+
+  it("should expand braces with file patterns in exclude", () => {
+    const result = parsePatterns(["*.{log,tmp}"], []);
+
+    expect(result.exclude).toStrictEqual(["*.log", "*.tmp"]);
+    expect(result.include).toStrictEqual([]);
+  });
+
+  it("should expand braces in nested paths in exclude", () => {
+    const result = parsePatterns(["src/{components,utils}/dist"], []);
+
+    expect(result.exclude).toStrictEqual([
+      "src/components/dist/**",
+      "src/utils/dist/**",
+    ]);
+    expect(result.include).toStrictEqual([]);
+  });
 });

@@ -36,12 +36,18 @@ export function parsePatterns(
   const include: string[] = [];
 
   for (const pattern of excludePatterns) {
-    if (pattern.startsWith("!")) {
-      const withoutBang = windowsNormalize(pattern.slice(1));
+    const normalized = windowsNormalize(pattern);
+
+    if (normalized.startsWith("!")) {
+      const withoutBang = normalized.slice(1);
 
       include.push(...expand(withoutBang));
     } else {
-      exclude.push(normalizeExcludePattern(pattern));
+      const expanded = expand(normalized);
+
+      for (const expandedPattern of expanded) {
+        exclude.push(normalizeExcludePattern(expandedPattern));
+      }
     }
   }
 
