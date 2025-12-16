@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/jimmy-guzman/cleanx/compare/v2.1.3...v2.2.0) (2025-12-16)
+
+
+### Features
+
+* ✨ support brace expansion in exclude/include patterns ([#24](https://github.com/jimmy-guzman/cleanx/issues/24)) ([21ab24b](https://github.com/jimmy-guzman/cleanx/commit/21ab24b39c1c7cc2d7164919825011e5634ae0d9))
+
 ## [2.1.3](https://github.com/jimmy-guzman/cleanx/compare/v2.1.2...v2.1.3) (2025-12-16)
 
 
