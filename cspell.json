@@ -34,7 +34,8 @@
     "unrs",
     "vinxi",
     "vitest",
-    "wagoid"
+    "wagoid",
+    "zeptomatch"
   ],
   "ignorePaths": [
     "node_modules",

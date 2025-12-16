@@ -8,17 +8,19 @@ import { deletePaths } from "./delete-paths";
 interface CleanWorkspaceOptions {
   dryRun: boolean;
   exclude: string[];
+  include: string[];
   updateLine: (workspaceDir: string, content: string) => void;
 }
 
 export async function cleanWorkspace(
   workspaceDir: string,
-  { dryRun, exclude, updateLine }: CleanWorkspaceOptions,
+  { dryRun, exclude, include, updateLine }: CleanWorkspaceOptions,
 ) {
   try {
     const paths = await resolvePaths({
       dir: workspaceDir,
       exclude,
+      include,
       onProgress: createPreparingProgress(updateLine, workspaceDir),
     });
 

@@ -61,8 +61,8 @@ importers:
         specifier: 2.6.1
         version: 2.6.1
       knip:
-        specifier: 5.73.4
-        version: 5.73.4(@types/node@22.15.27)(typescript@5.9.3)
+        specifier: 5.74.0
+        version: 5.74.0(@types/node@22.15.27)(typescript@5.9.3)
       lefthook:
         specifier: 2.0.12
         version: 2.0.12
@@ -84,6 +84,9 @@ importers:
       vitest:
         specifier: 4.0.15
         version: 4.0.15(@types/node@22.15.27)(jiti@2.6.1)
+      zeptomatch:
+        specifier: 2.1.0
+        version: 2.1.0
 
 packages:
 
@@ -2037,6 +2040,12 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
+  grammex@3.1.12:
+    resolution: {integrity: sha512-6ufJOsSA7LcQehIJNCO7HIBykfM7DXQual0Ny780/DEcJIpBlHRvcqEBWGPYd7hrXL2GJ3oJI1MIhaXjWmLQOQ==}
+
+  graphmatch@1.1.0:
+    resolution: {integrity: sha512-0E62MaTW5rPZVRLyIJZG/YejmdA/Xr1QydHEw3Vt+qOKkMIOE8WDLc9ZX2bmAjtJFZcId4lEdrdmASsEy7D1QA==}
+
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
     engines: {node: '>= 0.4'}
@@ -2325,8 +2334,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  knip@5.73.4:
-    resolution: {integrity: sha512-q0DDgqsRMa4z2IMEPEblns0igitG8Fu7exkvEgQx1QMLKEqSvcvKP9fMk+C1Ehy+Ux6oayl6zfAEGt6DvFtidw==}
+  knip@5.74.0:
+    resolution: {integrity: sha512-xSG+vn403ONBkQtSBf1+kcE8ulzyQHLWIDQAxvu3W7HnM0jZJqVUPlK5w6FZNUyKnp+4FInsYQW77eapDpmcNA==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -3279,6 +3288,9 @@ packages:
   yocto-queue@1.2.1:
     resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
     engines: {node: '>=12.20'}
+
+  zeptomatch@2.1.0:
+    resolution: {integrity: sha512-KiGErG2J0G82LSpniV0CtIzjlJ10E04j02VOudJsPyPwNZgGnRKQy7I1R7GMyg/QswnE4l7ohSGrQbQbjXPPDA==}
 
   zod-validation-error@3.4.1:
     resolution: {integrity: sha512-1KP64yqDPQ3rupxNv7oXhf7KdhHHgaqbKuspVoiN93TT0xrBjql+Svjkdjq/Qh/7GSMmgQs3AfvBT0heE35thw==}
@@ -5513,6 +5525,10 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
+  grammex@3.1.12: {}
+
+  graphmatch@1.1.0: {}
+
   has-bigints@1.1.0: {}
 
   has-flag@4.0.0: {}
@@ -5775,7 +5791,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  knip@5.73.4(@types/node@22.15.27)(typescript@5.9.3):
+  knip@5.74.0(@types/node@22.15.27)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 22.15.27
@@ -6749,6 +6765,11 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.2.1: {}
+
+  zeptomatch@2.1.0:
+    dependencies:
+      grammex: 3.1.12
+      graphmatch: 1.1.0
 
   zod-validation-error@3.4.1(zod@3.25.64):
     dependencies:

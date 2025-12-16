@@ -3,8 +3,8 @@ import { parseArgs } from "node:util";
 
 import { description, name, version } from "package.json";
 
-import { excludePatterns } from "./lib/exclude-patterns";
 import { log } from "./lib/logging/log";
+import { parseExcludePatterns } from "./lib/parse-exclude-patterns";
 
 const { values } = parseArgs({
   allowPositionals: false,
@@ -75,8 +75,11 @@ if (values.version) {
 
 const { runClean } = await import("./commands/run-clean.js");
 
+const { exclude, include } = parseExcludePatterns(values.exclude);
+
 await runClean({
   cwd: values.cwd,
   dryRun: values["dry-run"],
-  exclude: excludePatterns(values.exclude, values.include),
+  exclude,
+  include: [...include, ...values.include],
 });

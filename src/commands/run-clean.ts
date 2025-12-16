@@ -11,12 +11,18 @@ interface RunCleanOptions {
   cwd: string;
   dryRun: boolean;
   exclude: string[];
+  include: string[];
 }
 
 const CURSOR_HIDE = "\u001B[?25l";
 const CURSOR_SHOW = "\u001B[?25h";
 
-export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
+export async function runClean({
+  cwd,
+  dryRun,
+  exclude,
+  include,
+}: RunCleanOptions) {
   const startTime = performance.now();
   const workspacePaths = await getWorkspacePaths(cwd);
   const totalWorkspaces = workspacePaths.length;
@@ -43,7 +49,12 @@ export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   try {
     results = await Promise.allSettled(
       workspacePaths.map((workspaceDir) => {
-        return cleanWorkspace(workspaceDir, { dryRun, exclude, updateLine });
+        return cleanWorkspace(workspaceDir, {
+          dryRun,
+          exclude,
+          include,
+          updateLine,
+        });
       }),
     );
   } finally {
@@ -51,7 +62,7 @@ export async function runClean({ cwd, dryRun, exclude }: RunCleanOptions) {
   }
 
   const successes = results.filter(
-    (r) => r.status === "fulfilled" && r.value.success,
+    (result) => result.status === "fulfilled" && result.value.success,
   );
 
   const endTime = performance.now();
