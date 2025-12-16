@@ -1,7 +1,6 @@
 import { basename } from "node:path";
 
 import { fdir } from "fdir";
-import ignore from "ignore";
 
 import { buildIgnoreMap } from "./build-ignore-map";
 import { filterFilesToDelete } from "./filter-files-to-delete";
@@ -10,6 +9,7 @@ import { getAllGitignoreFiles } from "./get-all-gitignore-files";
 interface ResolvePathsOptions {
   dir: string;
   exclude: string[];
+  include: string[];
   onProgress: (
     phase: "filtering" | "gitignore" | "scanning",
     current?: number,
@@ -18,7 +18,7 @@ interface ResolvePathsOptions {
 }
 
 export async function resolvePaths(options: ResolvePathsOptions) {
-  const { dir, exclude = [], onProgress } = options;
+  const { dir, exclude = [], include = [], onProgress } = options;
 
   onProgress("gitignore");
 
@@ -44,12 +44,11 @@ export async function resolvePaths(options: ResolvePathsOptions) {
 
   onProgress("filtering", 0, allFiles.length);
 
-  const excludeIgnore = exclude.length > 0 ? ignore().add(exclude) : null;
-
   return filterFilesToDelete(
     allFiles,
     dir,
-    excludeIgnore,
+    exclude,
+    include,
     ignoreMap,
     (current, total) => {
       onProgress("filtering", current, total);

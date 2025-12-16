@@ -2,6 +2,8 @@ import { relative, sep } from "node:path";
 
 import type { Ignore } from "ignore";
 
+import zeptomatch from "zeptomatch";
+
 function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
   for (const [gitignoreDir, ignorer] of sortedEntries) {
     const relativeToGitignore = relative(gitignoreDir, filePath);
@@ -21,19 +23,33 @@ function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
 function shouldExcludeFile(
   filePath: string,
   baseDir: string,
-  excludeIg: Ignore | null,
+  exclude: string[],
+  include: string[],
 ) {
-  if (!excludeIg) return false;
+  if (exclude.length === 0) return false;
 
   const relativePath = relative(baseDir, filePath);
 
-  return Boolean(relativePath && excludeIg.ignores(relativePath));
+  if (!relativePath) return false;
+
+  const isExcluded = exclude.some((pattern) =>
+    zeptomatch(pattern, relativePath),
+  );
+
+  if (!isExcluded) return false;
+
+  const isIncluded = include.some((pattern) =>
+    zeptomatch(pattern, relativePath),
+  );
+
+  return !isIncluded;
 }
 
 export function filterFilesToDelete(
   allFiles: string[],
   dir: string,
-  excludeIg: Ignore | null,
+  exclude: string[],
+  include: string[],
   ignoreMap: Map<string, Ignore>,
   onProgress: (current: number, total: number) => void,
 ) {
@@ -52,7 +68,7 @@ export function filterFilesToDelete(
       onProgress(i + 1, allFiles.length);
     }
 
-    if (shouldExcludeFile(filePath, dir, excludeIg)) {
+    if (shouldExcludeFile(filePath, dir, exclude, include)) {
       continue;
     }
 
