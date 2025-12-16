@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/jimmy-guzman/cleanx/compare/v2.1.1...v2.1.2) (2025-12-16)
+
+
+### Bug Fixes
+
+* 🐛 bring back missing "scanning" progress indicator ([#22](https://github.com/jimmy-guzman/cleanx/issues/22)) ([c790f4e](https://github.com/jimmy-guzman/cleanx/commit/c790f4e9476db4d0e30481c499de84bb909dc91a))
+
 ## [2.1.1](https://github.com/jimmy-guzman/cleanx/compare/v2.1.0...v2.1.1) (2025-12-16)
 
 
