@@ -27,15 +27,17 @@ function shouldExcludeFile(
 ) {
   if (!relativePath) return false;
 
-  const isExcluded = exclude.some((pattern) =>
-    zeptomatch(pattern, relativePath),
-  );
+  const normalizedPath = relativePath.replaceAll(sep, "/");
+
+  const isExcluded = exclude.some((pattern) => {
+    return zeptomatch(pattern, normalizedPath);
+  });
 
   if (!isExcluded) return false;
 
-  const isIncluded = include.some((pattern) =>
-    zeptomatch(pattern, relativePath),
-  );
+  const isIncluded = include.some((pattern) => {
+    return zeptomatch(pattern, normalizedPath);
+  });
 
   return !isIncluded;
 }
