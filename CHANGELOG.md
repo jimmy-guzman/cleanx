@@ -10,7 +10,7 @@
 
 ### Bug Fixes
 
-* 🐛 relax dependecy ranges ([92e7b9b](https://github.com/jimmy-guzman/cleanx/commit/92e7b9bb07ddef7c323590c168aabfc82280f2a5))
+* 🐛 relax dependency ranges ([92e7b9b](https://github.com/jimmy-guzman/cleanx/commit/92e7b9bb07ddef7c323590c168aabfc82280f2a5))
 
 
 ### Features
