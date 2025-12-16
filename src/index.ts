@@ -75,7 +75,10 @@ if (values.version) {
 
 const { runClean } = await import("./commands/run-clean.js");
 
-const { exclude, include } = parsePatterns(values.exclude, values.include);
+const { exclude, include } = await parsePatterns(
+  values.exclude,
+  values.include,
+);
 
 await runClean({
   cwd: values.cwd,
