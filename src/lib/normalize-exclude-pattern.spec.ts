@@ -80,6 +80,10 @@ describe("normalizeExcludePattern", () => {
     expect(normalizeExcludePattern(String.raw`src\**\*.js`)).toBe(
       "src/**/*.js",
     );
-    expect(normalizeExcludePattern(String.raw`logs\*.log`)).toBe("logs/*.log"); // ← Fix this
+    expect(normalizeExcludePattern(String.raw`logs\*.log`)).toBe("logs/*.log");
+  });
+
+  it("should handle root path", () => {
+    expect(normalizeExcludePattern("/")).toBe("/**");
   });
 });

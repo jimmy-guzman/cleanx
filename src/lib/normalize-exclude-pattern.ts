@@ -13,9 +13,7 @@ export function normalizeExcludePattern(pattern: string) {
     return normalized;
   }
 
-  const lastSegment = normalized.split("/").pop() ?? "";
-
-  if (lastSegment.includes(".")) {
+  if (normalized.split("/").pop()?.includes(".")) {
     return normalized;
   }
 
