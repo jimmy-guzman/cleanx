@@ -28,6 +28,8 @@ export async function resolvePaths(options: ResolvePathsOptions) {
     return [];
   }
 
+  onProgress("scanning");
+
   const [ignoreMap, allFiles] = await Promise.all([
     buildIgnoreMap(allGitignoreFiles),
     new fdir()
