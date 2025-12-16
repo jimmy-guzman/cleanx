@@ -3,11 +3,10 @@ import { dirname } from "node:path";
 
 import type { Ignore } from "ignore";
 
-import ignore from "ignore";
-
 import { log } from "../logging/log";
 
 export async function buildIgnoreMap(gitignoreFiles: string[]) {
+  const { default: ignore } = await import("ignore");
   const ignoreMap = new Map<string, Ignore>();
 
   const results = await Promise.allSettled(

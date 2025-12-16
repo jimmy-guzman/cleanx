@@ -1,8 +1,8 @@
 import { parsePatterns } from "./parse-patterns";
 
 describe("parsePatterns", () => {
-  it("should preserve patterns that already contain **", () => {
-    const result = parsePatterns(
+  it("should preserve patterns that already contain **", async () => {
+    const result = await parsePatterns(
       ["dist/**", "**/node_modules/**", "src/**/*.js"],
       [],
     );
@@ -15,8 +15,11 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should add ** to directory patterns ending with /", () => {
-    const result = parsePatterns(["dist/", "node_modules/", "build/"], []);
+  it("should add ** to directory patterns ending with /", async () => {
+    const result = await parsePatterns(
+      ["dist/", "node_modules/", "build/"],
+      [],
+    );
 
     expect(result.exclude).toStrictEqual([
       "dist/**",
@@ -26,8 +29,8 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should add /** to plain directory names", () => {
-    const result = parsePatterns(["dist", "node_modules", "build"], []);
+  it("should add /** to plain directory names", async () => {
+    const result = await parsePatterns(["dist", "node_modules", "build"], []);
 
     expect(result.exclude).toStrictEqual([
       "dist/**",
@@ -37,8 +40,8 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should handle nested directory paths", () => {
-    const result = parsePatterns(
+  it("should handle nested directory paths", async () => {
+    const result = await parsePatterns(
       ["src/dist", "packages/app/dist", "packages/app/dist/"],
       [],
     );
@@ -51,15 +54,15 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve file glob patterns with asterisk", () => {
-    const result = parsePatterns(["*.log", "*.js", "test-*.json"], []);
+  it("should preserve file glob patterns with asterisk", async () => {
+    const result = await parsePatterns(["*.log", "*.js", "test-*.json"], []);
 
     expect(result.exclude).toStrictEqual(["*.log", "*.js", "test-*.json"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve file patterns with extensions", () => {
-    const result = parsePatterns(
+  it("should preserve file patterns with extensions", async () => {
+    const result = await parsePatterns(
       [".env.local", ".DS_Store", "package-lock.json"],
       [],
     );
@@ -72,29 +75,29 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve question mark glob patterns", () => {
-    const result = parsePatterns(["file?.txt", "test?.log"], []);
+  it("should preserve question mark glob patterns", async () => {
+    const result = await parsePatterns(["file?.txt", "test?.log"], []);
 
     expect(result.exclude).toStrictEqual(["file?.txt", "test?.log"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve bracket glob patterns", () => {
-    const result = parsePatterns(["file[0-9].txt", "[abc].log"], []);
+  it("should preserve bracket glob patterns", async () => {
+    const result = await parsePatterns(["file[0-9].txt", "[abc].log"], []);
 
     expect(result.exclude).toStrictEqual(["file[0-9].txt", "[abc].log"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve nested file patterns", () => {
-    const result = parsePatterns(["src/*.js", "logs/*.log"], []);
+  it("should preserve nested file patterns", async () => {
+    const result = await parsePatterns(["src/*.js", "logs/*.log"], []);
 
     expect(result.exclude).toStrictEqual(["src/*.js", "logs/*.log"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve exact filenames with extensions", () => {
-    const result = parsePatterns(
+  it("should preserve exact filenames with extensions", async () => {
+    const result = await parsePatterns(
       ["README.md", ".gitignore", "package.json"],
       [],
     );
@@ -107,15 +110,15 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should preserve dotfiles", () => {
-    const result = parsePatterns([".env", ".npmrc", ".eslintrc"], []);
+  it("should preserve dotfiles", async () => {
+    const result = await parsePatterns([".env", ".npmrc", ".eslintrc"], []);
 
     expect(result.exclude).toStrictEqual([".env", ".npmrc", ".eslintrc"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should normalize Windows backslashes to forward slashes", () => {
-    const result = parsePatterns(
+  it("should normalize Windows backslashes to forward slashes", async () => {
+    const result = await parsePatterns(
       [
         String.raw`dist\build`,
         "node_modules\\",
@@ -134,22 +137,22 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should handle root path", () => {
-    const result = parsePatterns(["/"], []);
+  it("should handle root path", async () => {
+    const result = await parsePatterns(["/"], []);
 
     expect(result.exclude).toStrictEqual(["/**"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should convert negation patterns to include", () => {
-    const result = parsePatterns(["!.env.example", "!dist/keep.js"], []);
+  it("should convert negation patterns to include", async () => {
+    const result = await parsePatterns(["!.env.example", "!dist/keep.js"], []);
 
     expect(result.exclude).toStrictEqual([]);
     expect(result.include).toStrictEqual([".env.example", "dist/keep.js"]);
   });
 
-  it("should handle mix of regular and negation patterns", () => {
-    const result = parsePatterns(
+  it("should handle mix of regular and negation patterns", async () => {
+    const result = await parsePatterns(
       [".env*", "!.env.example", "node_modules", "!node_modules/.cache/**"],
       [],
     );
@@ -161,29 +164,29 @@ describe("parsePatterns", () => {
     ]);
   });
 
-  it("should not normalize include patterns from negations", () => {
-    const result = parsePatterns(["dist", "!dist/keep"], []);
+  it("should not normalize include patterns from negations", async () => {
+    const result = await parsePatterns(["dist", "!dist/keep"], []);
 
     expect(result.exclude).toStrictEqual(["dist/**"]);
     expect(result.include).toStrictEqual(["dist/keep"]);
   });
 
-  it("should preserve file patterns in negations", () => {
-    const result = parsePatterns(["*.log", "!important.log"], []);
+  it("should preserve file patterns in negations", async () => {
+    const result = await parsePatterns(["*.log", "!important.log"], []);
 
     expect(result.exclude).toStrictEqual(["*.log"]);
     expect(result.include).toStrictEqual(["important.log"]);
   });
 
-  it("should handle empty arrays", () => {
-    const result = parsePatterns([], []);
+  it("should handle empty arrays", async () => {
+    const result = await parsePatterns([], []);
 
     expect(result.exclude).toStrictEqual([]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should normalize backslashes in negation patterns", () => {
-    const result = parsePatterns(
+  it("should normalize backslashes in negation patterns", async () => {
+    const result = await parsePatterns(
       [
         "dist",
         String.raw`!dist\keep`,
@@ -197,15 +200,18 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual(["dist/keep", "node_modules/.cache"]);
   });
 
-  it("should parse explicit include patterns", () => {
-    const result = parsePatterns(["node_modules"], [".cache/**", ".vite/**"]);
+  it("should parse explicit include patterns", async () => {
+    const result = await parsePatterns(
+      ["node_modules"],
+      [".cache/**", ".vite/**"],
+    );
 
     expect(result.exclude).toStrictEqual(["node_modules/**"]);
     expect(result.include).toStrictEqual([".cache/**", ".vite/**"]);
   });
 
-  it("should normalize backslashes in explicit include patterns", () => {
-    const result = parsePatterns(
+  it("should normalize backslashes in explicit include patterns", async () => {
+    const result = await parsePatterns(
       ["dist"],
       [String.raw`dist\keep\**`, String.raw`dist\important.js`],
     );
@@ -214,8 +220,8 @@ describe("parsePatterns", () => {
     expect(result.include).toStrictEqual(["dist/keep/**", "dist/important.js"]);
   });
 
-  it("should expand braces in negation patterns", () => {
-    const result = parsePatterns(
+  it("should expand braces in negation patterns", async () => {
+    const result = await parsePatterns(
       ["node_modules", "!node_modules/{.cache,.vite}/**"],
       [],
     );
@@ -227,8 +233,8 @@ describe("parsePatterns", () => {
     ]);
   });
 
-  it("should expand braces in explicit include patterns", () => {
-    const result = parsePatterns(
+  it("should expand braces in explicit include patterns", async () => {
+    const result = await parsePatterns(
       ["node_modules"],
       ["node_modules/{.cache,.vite}/**"],
     );
@@ -240,8 +246,8 @@ describe("parsePatterns", () => {
     ]);
   });
 
-  it("should expand multiple brace patterns", () => {
-    const result = parsePatterns(
+  it("should expand multiple brace patterns", async () => {
+    const result = await parsePatterns(
       [],
       ["src/{components,utils}/{*.test.ts,*.spec.ts}"],
     );
@@ -255,22 +261,22 @@ describe("parsePatterns", () => {
     ]);
   });
 
-  it("should expand braces in exclude patterns", () => {
-    const result = parsePatterns(["dist/{foo,bar}"], []);
+  it("should expand braces in exclude patterns", async () => {
+    const result = await parsePatterns(["dist/{foo,bar}"], []);
 
     expect(result.exclude).toStrictEqual(["dist/foo/**", "dist/bar/**"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should expand braces with file patterns in exclude", () => {
-    const result = parsePatterns(["*.{log,tmp}"], []);
+  it("should expand braces with file patterns in exclude", async () => {
+    const result = await parsePatterns(["*.{log,tmp}"], []);
 
     expect(result.exclude).toStrictEqual(["*.log", "*.tmp"]);
     expect(result.include).toStrictEqual([]);
   });
 
-  it("should expand braces in nested paths in exclude", () => {
-    const result = parsePatterns(["src/{components,utils}/dist"], []);
+  it("should expand braces in nested paths in exclude", async () => {
+    const result = await parsePatterns(["src/{components,utils}/dist"], []);
 
     expect(result.exclude).toStrictEqual([
       "src/components/dist/**",

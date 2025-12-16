@@ -1,5 +1,3 @@
-import expand from "brace-expansion";
-
 const windowsNormalize = (pattern: string) => pattern.replaceAll("\\", "/");
 
 function normalizeExcludePattern(pattern: string) {
@@ -28,10 +26,12 @@ function normalizeExcludePattern(pattern: string) {
   return `${normalized}/**`;
 }
 
-export function parsePatterns(
+export async function parsePatterns(
   excludePatterns: string[],
   includePatterns: string[],
 ) {
+  const { default: expand } = await import("brace-expansion");
+
   const exclude: string[] = [];
   const include: string[] = [];
 

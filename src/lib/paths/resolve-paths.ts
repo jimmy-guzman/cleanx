@@ -1,7 +1,5 @@
 import { basename } from "node:path";
 
-import { fdir } from "fdir";
-
 import { buildIgnoreMap } from "./build-ignore-map";
 import { filterFilesToDelete } from "./filter-files-to-delete";
 import { getAllGitignoreFiles } from "./get-all-gitignore-files";
@@ -29,6 +27,8 @@ export async function resolvePaths(options: ResolvePathsOptions) {
   }
 
   onProgress("scanning");
+
+  const { fdir } = await import("fdir");
 
   const scanFiles = new fdir()
     .withFullPaths()

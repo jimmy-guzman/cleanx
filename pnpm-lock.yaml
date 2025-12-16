@@ -8,16 +8,6 @@ importers:
 
   .:
     dependencies:
-      fdir:
-        specifier: ^6.5.0
-        version: 6.5.0(picomatch@4.0.3)
-      ignore:
-        specifier: ^7.0.5
-        version: 7.0.5
-      tinyglobby:
-        specifier: ~0.2.15
-        version: 0.2.15
-    devDependencies:
       '@commitlint/config-conventional':
         specifier: 20.2.0
         version: 20.2.0
@@ -57,9 +47,15 @@ importers:
       eslint:
         specifier: 9.39.2
         version: 9.39.2(jiti@2.6.1)
+      fdir:
+        specifier: 6.5.0
+        version: 6.5.0(picomatch@4.0.3)
       gitzy:
         specifier: 6.5.7
         version: 6.5.7
+      ignore:
+        specifier: 7.0.5
+        version: 7.0.5
       is-ci:
         specifier: 4.1.0
         version: 4.1.0
@@ -81,6 +77,9 @@ importers:
       publint:
         specifier: 0.3.16
         version: 0.3.16
+      tinyglobby:
+        specifier: 0.2.15
+        version: 0.2.15
       tsdown:
         specifier: 0.18.0
         version: 0.18.0(oxc-resolver@11.15.0)(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)
