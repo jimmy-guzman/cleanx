@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/jimmy-guzman/cleanx/compare/v2.1.0...v2.1.1) (2025-12-16)
+
+
+### Performance Improvements
+
+* ⚡️ optimize gitignore file discovery & filtering ([#21](https://github.com/jimmy-guzman/cleanx/issues/21)) ([5e4bb07](https://github.com/jimmy-guzman/cleanx/commit/5e4bb073078b33bac666a74e56bcd6979ee569a8))
+
 # [2.1.0](https://github.com/jimmy-guzman/cleanx/compare/v2.0.2...v2.1.0) (2025-12-13)
 
 
