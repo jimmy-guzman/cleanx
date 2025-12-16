@@ -21,15 +21,10 @@ function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
 }
 
 function shouldExcludeFile(
-  filePath: string,
-  baseDir: string,
+  relativePath: string,
   exclude: string[],
   include: string[],
 ) {
-  if (exclude.length === 0) return false;
-
-  const relativePath = relative(baseDir, filePath);
-
   if (!relativePath) return false;
 
   const isExcluded = exclude.some((pattern) =>
@@ -54,22 +49,29 @@ export function filterFilesToDelete(
   onProgress: (current: number, total: number) => void,
 ) {
   const pathsToDelete: string[] = [];
+  const total = allFiles.length;
 
   const sortedEntries = [...ignoreMap.entries()].toSorted(
     ([a], [b]) => b.split(sep).length - a.split(sep).length,
   );
 
-  for (let i = 0; i < allFiles.length; i++) {
+  const hasExclusions = exclude.length > 0;
+
+  for (let i = 0; i < total; i++) {
     const filePath = allFiles[i];
 
     if (!filePath) continue;
 
-    if (i % 100 === 0 || i === allFiles.length - 1) {
-      onProgress(i + 1, allFiles.length);
+    if (i % 100 === 0 || i === total - 1) {
+      onProgress(i + 1, total);
     }
 
-    if (shouldExcludeFile(filePath, dir, exclude, include)) {
-      continue;
+    if (hasExclusions) {
+      const relativePath = relative(dir, filePath);
+
+      if (shouldExcludeFile(relativePath, exclude, include)) {
+        continue;
+      }
     }
 
     if (shouldDeleteFile(filePath, sortedEntries)) {
