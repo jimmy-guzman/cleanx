@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/jimmy-guzman/cleanx/compare/v2.2.0...v2.2.1) (2025-12-16)
+
+
+### Performance Improvements
+
+* ⚡️ improve install size and load times ([#25](https://github.com/jimmy-guzman/cleanx/issues/25)) ([df153c6](https://github.com/jimmy-guzman/cleanx/commit/df153c690af6f58814def82dc86fbd9b7c84df2e))
+
 # [2.2.0](https://github.com/jimmy-guzman/cleanx/compare/v2.1.3...v2.2.0) (2025-12-16)
 
 
