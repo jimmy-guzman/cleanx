@@ -28,14 +28,18 @@ export async function resolvePaths(options: ResolvePathsOptions) {
     return [];
   }
 
+  onProgress("scanning");
+
+  const scanFiles = new fdir()
+    .withFullPaths()
+    .withDirs()
+    .exclude((dirPath) => basename(dirPath) === ".git")
+    .crawl(dir)
+    .withPromise();
+
   const [ignoreMap, allFiles] = await Promise.all([
     buildIgnoreMap(allGitignoreFiles),
-    new fdir()
-      .withFullPaths()
-      .withDirs()
-      .exclude((dirPath) => basename(dirPath) === ".git")
-      .crawl(dir)
-      .withPromise(),
+    scanFiles,
   ]);
 
   onProgress("filtering", 0, allFiles.length);
