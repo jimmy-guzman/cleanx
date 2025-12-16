@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/jimmy-guzman/cleanx/compare/v2.1.2...v2.1.3) (2025-12-16)
+
+
+### Bug Fixes
+
+* 🐛 resolve inconsistent exclude/include pattern behavior ([#23](https://github.com/jimmy-guzman/cleanx/issues/23)) ([b55fc0d](https://github.com/jimmy-guzman/cleanx/commit/b55fc0dc5ae159a988b5ca190b7bb4fb79fe7dc1))
+
 ## [2.1.2](https://github.com/jimmy-guzman/cleanx/compare/v2.1.1...v2.1.2) (2025-12-16)
 
 
