@@ -5,6 +5,8 @@ import type { Ignore } from "ignore";
 
 import ignore from "ignore";
 
+import { log } from "../logging/log";
+
 export async function buildIgnoreMap(gitignoreFiles: string[]) {
   const ignoreMap = new Map<string, Ignore>();
 
@@ -22,6 +24,8 @@ export async function buildIgnoreMap(gitignoreFiles: string[]) {
       const ignorer = ignore().add(content);
 
       ignoreMap.set(dirname(path), ignorer);
+    } else {
+      log.warn(`Failed to read gitignore: ${result.reason}`);
     }
   }
 
