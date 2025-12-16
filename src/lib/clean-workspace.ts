@@ -1,5 +1,5 @@
 import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "@/lib/colors";
-import { resolvePaths } from "@/lib/paths/resolve";
+import { resolvePaths } from "@/lib/paths/resolve-paths";
 import { createCleaningProgress } from "@/lib/progress/cleaning";
 import { createPreparingProgress } from "@/lib/progress/preparing";
 
