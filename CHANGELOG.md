@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/jimmy-guzman/cleanx/compare/v2.2.1...v2.2.2) (2025-12-17)
+
+
+### Bug Fixes
+
+* 🐛 correctly move all deps to dev deps ([#26](https://github.com/jimmy-guzman/cleanx/issues/26)) ([41e4fa5](https://github.com/jimmy-guzman/cleanx/commit/41e4fa5808672acb0e8b3b33932ff1208ce394b4))
+
 ## [2.2.1](https://github.com/jimmy-guzman/cleanx/compare/v2.2.0...v2.2.1) (2025-12-16)
 
 
