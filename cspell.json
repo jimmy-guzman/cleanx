@@ -33,6 +33,7 @@
     "tsdown",
     "typecheck",
     "unconfig",
+    "unplugin",
     "unrs",
     "vinxi",
     "vitest",
