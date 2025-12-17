@@ -1,7 +1,7 @@
+import type { Ignore } from "ignore";
+
 import { readFile } from "node:fs/promises";
 import { dirname } from "node:path";
-
-import type { Ignore } from "ignore";
 
 import { log } from "../logging/log";
 

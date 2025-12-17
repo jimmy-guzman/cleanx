@@ -1,16 +1,10 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
+  inlineOnly: [],
   minify: true,
-  noExternal: [
-    "brace-expansion",
-    "fdir",
-    "tinyglobby",
-    "@manypkg/get-packages",
-    "zeptomatch",
-    "ignore",
-    "ms",
-    "escalade",
-  ],
+  noExternal: () => true,
+  platform: "node",
   publint: true,
+  unused: true,
 });
