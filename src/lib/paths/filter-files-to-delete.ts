@@ -1,6 +1,6 @@
-import { relative, sep } from "node:path";
-
 import type { Ignore } from "ignore";
+
+import { relative, sep } from "node:path";
 
 function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
   for (const [gitignoreDir, ignorer] of sortedEntries) {

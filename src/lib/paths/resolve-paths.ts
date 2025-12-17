@@ -16,7 +16,7 @@ interface ResolvePathsOptions {
 }
 
 export async function resolvePaths(options: ResolvePathsOptions) {
-  const { dir, exclude = [], include = [], onProgress } = options;
+  const { dir, exclude, include, onProgress } = options;
 
   onProgress("gitignore");
 
