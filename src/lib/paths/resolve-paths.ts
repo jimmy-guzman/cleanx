@@ -1,4 +1,4 @@
-import { basename } from "node:path";
+import { basename } from "pathe";
 
 import { buildIgnoreMap } from "./build-ignore-map";
 import { filterFilesToDelete } from "./filter-files-to-delete";
