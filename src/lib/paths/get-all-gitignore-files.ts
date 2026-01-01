@@ -1,6 +1,5 @@
-import { join } from "node:path";
-
 import escalade from "escalade";
+import { join } from "pathe";
 import { glob } from "tinyglobby";
 
 const GITIGNORE_FILENAME = ".gitignore";

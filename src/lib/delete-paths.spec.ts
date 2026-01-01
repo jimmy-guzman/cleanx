@@ -196,6 +196,7 @@ describe("deletePaths", () => {
   describe("concurrent operations", () => {
     it("should delete all paths concurrently using Promise.all", async () => {
       const delayMs = 100;
+
       let callCount = 0;
 
       mockRm.mockImplementation(async () => {
