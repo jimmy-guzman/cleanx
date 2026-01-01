@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/jimmy-guzman/cleanx/compare/v2.2.2...v2.2.3) (2026-01-01)
+
+
+### Bug Fixes
+
+* 🐛 better path normalization ([#27](https://github.com/jimmy-guzman/cleanx/issues/27)) ([cb7ea17](https://github.com/jimmy-guzman/cleanx/commit/cb7ea175f64cffb7e5518f22d480a231a3af389f))
+
 ## [2.2.2](https://github.com/jimmy-guzman/cleanx/compare/v2.2.1...v2.2.2) (2025-12-17)
 
 
