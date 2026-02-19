@@ -30,7 +30,7 @@ export async function parsePatterns(
   excludePatterns: string[],
   includePatterns: string[],
 ) {
-  const { default: expand } = await import("brace-expansion");
+  const { expand } = await import("brace-expansion");
 
   const exclude: string[] = [];
   const include: string[] = [];
