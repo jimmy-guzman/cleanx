@@ -1,9 +1,8 @@
-import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "@/lib/colors";
-import { resolvePaths } from "@/lib/paths/resolve-paths";
-import { createCleaningProgress } from "@/lib/progress/cleaning";
-import { createPreparingProgress } from "@/lib/progress/preparing";
-
+import { dim, ERROR, SUCCESS, suffix, WARN, ws } from "./colors";
 import { deletePaths } from "./delete-paths";
+import { getErrorMessage } from "./get-error-message";
+import { createCleaningProgress, createPreparingProgress } from "./progress";
+import { resolvePaths } from "./resolve-paths";
 
 interface CleanWorkspaceOptions {
   dryRun: boolean;
@@ -36,7 +35,7 @@ export async function cleanWorkspace(
     const showProgress = paths.length > 100;
 
     await deletePaths(paths, {
-      isDryRun: dryRun,
+      dryRun,
       onProgress: showProgress
         ? createCleaningProgress(updateLine, workspaceDir)
         : undefined,
@@ -51,7 +50,7 @@ export async function cleanWorkspace(
   } catch (error) {
     updateLine(
       workspaceDir,
-      `${ERROR} Failed ${ws(workspaceDir)}: ${error instanceof Error ? error.message : String(error)}`,
+      `${ERROR} Failed ${ws(workspaceDir)}: ${getErrorMessage(error)}`,
     );
 
     return { skipped: false, success: false };

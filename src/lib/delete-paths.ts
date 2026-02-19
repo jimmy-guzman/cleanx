@@ -1,13 +1,15 @@
 import { rm } from "node:fs/promises";
 
+import { getErrorMessage } from "./get-error-message";
+
 interface DeletePathsOptions {
-  isDryRun: boolean;
+  dryRun: boolean;
   onProgress?: (current: number, total: number, path: string) => void;
 }
 
 export async function deletePaths(
   paths: string[],
-  { isDryRun, onProgress }: DeletePathsOptions,
+  { dryRun, onProgress }: DeletePathsOptions,
 ) {
   const getNextCompleted = (() => {
     let completed = 0;
@@ -17,7 +19,7 @@ export async function deletePaths(
 
   await Promise.all(
     paths.map(async (path) => {
-      if (isDryRun) {
+      if (dryRun) {
         onProgress?.(getNextCompleted(), paths.length, path);
 
         return;
@@ -28,9 +30,7 @@ export async function deletePaths(
 
         onProgress?.(getNextCompleted(), paths.length, path);
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-
-        throw new Error(`Failed to delete ${path}: ${message}`, {
+        throw new Error(`Failed to delete ${path}: ${getErrorMessage(error)}`, {
           cause: error,
         });
       }
