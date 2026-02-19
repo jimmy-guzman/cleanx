@@ -1,3 +1,10 @@
+## [2.2.4](https://github.com/jimmy-guzman/cleanx/compare/v2.2.3...v2.2.4) (2026-02-19)
+
+
+### Bug Fixes
+
+* 🐛 bump `brace-expansion` to v5 ([#28](https://github.com/jimmy-guzman/cleanx/issues/28)) ([0f5ff8b](https://github.com/jimmy-guzman/cleanx/commit/0f5ff8bf3a2801d4d575d8efb7fc3149a42313f0))
+
 ## [2.2.3](https://github.com/jimmy-guzman/cleanx/compare/v2.2.2...v2.2.3) (2026-01-01)
 
 
