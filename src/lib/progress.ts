@@ -33,6 +33,8 @@ export function createPreparingProgress(
     current?: number,
     total?: number,
   ) => {
+    // Phase contract: "gitignore" and "scanning" use only the phase,
+    // while "filtering" expects numeric current and total to compute percent
     if (phase === "gitignore") {
       updateLine(
         workspaceDir,

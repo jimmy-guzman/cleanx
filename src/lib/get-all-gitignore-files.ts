@@ -12,7 +12,12 @@ async function findLocalGitignoreFiles(dir: string) {
     {
       cwd: dir,
       exclude: (fileName) => {
-        return fileName === "node_modules" || fileName === GIT_FILENAME;
+        return (
+          fileName === "node_modules" ||
+          fileName.startsWith("node_modules/") ||
+          fileName === GIT_FILENAME ||
+          fileName.includes("/.git")
+        );
       },
     },
   )) {
@@ -25,7 +30,11 @@ async function findLocalGitignoreFiles(dir: string) {
 async function findParentGitignoreFiles(dir: string) {
   const parentGitignoreFiles: string[] = [];
 
-  let current = dirname(dir);
+  const dirIsRepoRoot = await access(join(dir, GIT_FILENAME))
+    .then(() => true)
+    .catch(() => false);
+
+  let current = dirIsRepoRoot ? dir : dirname(dir);
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- loop breaks via return or parent check
   while (true) {
