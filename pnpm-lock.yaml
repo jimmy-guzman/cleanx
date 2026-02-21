@@ -59,6 +59,9 @@ importers:
       lefthook:
         specifier: 2.1.1
         version: 2.1.1
+      pathe:
+        specifier: 2.0.3
+        version: 2.0.3
       prettier:
         specifier: 3.8.1
         version: 3.8.1

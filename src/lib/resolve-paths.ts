@@ -1,7 +1,8 @@
 import type { Ignore } from "ignore";
 
 import { readFile } from "node:fs/promises";
-import { basename, dirname } from "node:path";
+
+import { basename, dirname } from "pathe";
 
 import { filterFilesToDelete } from "./filter-files-to-delete";
 import { getAllGitignoreFiles } from "./get-all-gitignore-files";

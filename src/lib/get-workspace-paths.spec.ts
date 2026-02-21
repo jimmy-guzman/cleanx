@@ -1,5 +1,6 @@
 import { glob, readdir, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+
+import { resolve } from "pathe";
 
 import { getWorkspacePaths } from "./get-workspace-paths";
 
@@ -259,6 +260,81 @@ describe("getWorkspacePaths", () => {
       // The glob should only be called with "packages/*", not with ""
       expect(mockedGlob).toHaveBeenCalledWith("packages/*", expect.anything());
     });
+
+    it("should handle flow sequence format", async () => {
+      setupReaddir({
+        "/repo": ["package.json"],
+        [resolve("/repo", "apps/web")]: ["package.json"],
+        [resolve("/repo", "packages/a")]: ["package.json"],
+      });
+      setupReadFile({
+        "pnpm-workspace.yaml": "packages: ['packages/*', 'apps/*']",
+      });
+
+      let callCount = 0;
+
+      mockedGlob.mockImplementation((_pattern, _options) => {
+        callCount++;
+
+        if (callCount === 1) {
+          return createAsyncIterable(["packages/a"]) as GlobReturn;
+        }
+
+        return createAsyncIterable(["apps/web"]) as GlobReturn;
+      });
+
+      const result = await getWorkspacePaths("/repo");
+
+      expect(result).toContain(resolve("/repo", "packages/a"));
+      expect(result).toContain(resolve("/repo", "apps/web"));
+    });
+
+    it("should handle flow sequence with double quotes", async () => {
+      setupReaddir({
+        "/repo": ["package.json"],
+        [resolve("/repo", "packages/a")]: ["package.json"],
+      });
+      setupReadFile({
+        "pnpm-workspace.yaml": 'packages: ["packages/*"]',
+      });
+      mockedGlob.mockReturnValue(
+        createAsyncIterable(["packages/a"]) as GlobReturn,
+      );
+
+      const result = await getWorkspacePaths("/repo");
+
+      expect(result).toContain(resolve("/repo", "packages/a"));
+    });
+
+    it("should handle flow sequence with unquoted values", async () => {
+      setupReaddir({
+        "/repo": ["package.json"],
+        [resolve("/repo", "packages/a")]: ["package.json"],
+      });
+      setupReadFile({
+        "pnpm-workspace.yaml": "packages: [packages/*]",
+      });
+      mockedGlob.mockReturnValue(
+        createAsyncIterable(["packages/a"]) as GlobReturn,
+      );
+
+      const result = await getWorkspacePaths("/repo");
+
+      expect(result).toContain(resolve("/repo", "packages/a"));
+    });
+
+    it("should handle empty flow sequence", async () => {
+      setupReaddir({
+        "/repo": ["package.json"],
+      });
+      setupReadFile({
+        "pnpm-workspace.yaml": "packages: []",
+      });
+
+      const result = await getWorkspacePaths("/repo");
+
+      expect(result).toStrictEqual(["/repo"]);
+    });
   });
 
   describe("package.json workspaces", () => {
@@ -483,6 +559,51 @@ describe("getWorkspacePaths", () => {
         if (pathStr.endsWith("package.json")) {
           return JSON.stringify({
             workspaces: ["packages/*", "!packages/b"],
+          }) as unknown as ReadFileReturn;
+        }
+
+        throw new Error("ENOENT");
+      });
+
+      let callCount = 0;
+
+      mockedGlob.mockImplementation((_pattern, _options) => {
+        callCount++;
+
+        if (callCount === 1) {
+          return createAsyncIterable([
+            "packages/a",
+            "packages/b",
+          ]) as GlobReturn;
+        }
+
+        return createAsyncIterable(["packages/b"]) as GlobReturn;
+      });
+
+      const result = await getWorkspacePaths("/repo");
+
+      expect(result).toContain("/repo");
+      expect(result).toContain(resolve("/repo", "packages/a"));
+      expect(result).not.toContain(resolve("/repo", "packages/b"));
+    });
+
+    it("should handle negation patterns before positives (order-independent)", async () => {
+      setupReaddir({
+        "/repo": ["package.json"],
+        [resolve("/repo", "packages/a")]: ["package.json"],
+        [resolve("/repo", "packages/b")]: ["package.json"],
+      });
+
+      mockedReadFile.mockImplementation(async (filePath) => {
+        const pathStr = filePath as string;
+
+        if (pathStr.endsWith("pnpm-workspace.yaml")) {
+          throw new Error("ENOENT");
+        }
+
+        if (pathStr.endsWith("package.json")) {
+          return JSON.stringify({
+            workspaces: ["!packages/b", "packages/*"],
           }) as unknown as ReadFileReturn;
         }
 

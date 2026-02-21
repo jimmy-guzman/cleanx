@@ -1,6 +1,6 @@
 import type { Ignore } from "ignore";
 
-import { matchesGlob, relative, sep } from "node:path";
+import { matchesGlob, normalize, relative } from "pathe";
 
 function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
   for (const [gitignoreDir, ignorer] of sortedEntries) {
@@ -25,16 +25,20 @@ function shouldExcludeFile(
 ) {
   if (!relativePath) return false;
 
-  const normalizedPath = relativePath.replaceAll(sep, "/");
+  const normalizedPath = normalize(relativePath);
 
   const isExcluded = exclude.some((pattern) => {
-    return matchesGlob(normalizedPath, pattern);
+    const normalizedPattern = normalize(pattern);
+
+    return matchesGlob(normalizedPath, normalizedPattern);
   });
 
   if (!isExcluded) return false;
 
   const isIncluded = include.some((pattern) => {
-    return matchesGlob(normalizedPath, pattern);
+    const normalizedPattern = normalize(pattern);
+
+    return matchesGlob(normalizedPath, normalizedPattern);
   });
 
   return !isIncluded;
@@ -51,9 +55,9 @@ export function filterFilesToDelete(
   const pathsToDelete: string[] = [];
   const total = allFiles.length;
 
-  const sortedEntries = [...ignoreMap.entries()].toSorted(
-    ([a], [b]) => b.split(sep).length - a.split(sep).length,
-  );
+  const sortedEntries = [...ignoreMap.entries()].toSorted(([a], [b]) => {
+    return normalize(b).split("/").length - normalize(a).split("/").length;
+  });
 
   const hasExclusions = exclude.length > 0;
 

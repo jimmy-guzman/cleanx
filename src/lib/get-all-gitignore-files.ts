@@ -1,5 +1,6 @@
 import { access, glob } from "node:fs/promises";
-import { dirname, join } from "node:path";
+
+import { dirname, join } from "pathe";
 
 const GITIGNORE_FILENAME = ".gitignore";
 const GIT_FILENAME = ".git";

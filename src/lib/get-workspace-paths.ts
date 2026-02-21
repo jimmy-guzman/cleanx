@@ -1,5 +1,6 @@
 import { glob, readdir, readFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+
+import { dirname, join, resolve } from "pathe";
 
 async function findWorkspaceRoot(cwd: string) {
   let current = resolve(cwd);
@@ -40,33 +41,72 @@ async function readTextFile(filePath: string) {
   }
 }
 
+/**
+ * Parses the "packages" field from a pnpm-workspace.yaml file.
+ *
+ * Supports the following YAML constructs:
+ * - Block sequences:     `packages:\n  - 'packages/*'`
+ * - Flow sequences:      `packages: ['packages/*', 'apps/*']`
+ * - Empty arrays:        `packages: []`
+ * - Single/double quotes and unquoted values
+ * - Comments within block sequences
+ *
+ * This is intentionally not a full YAML parser to avoid a heavy dependency.
+ */
 function parsePnpmWorkspaceYaml(content: string): string[] {
-  const patterns: string[] = [];
   const lines = content.split("\n");
 
-  let inPackages = false;
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]?.trim() ?? "";
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+    const match = /^packages:(.*)$/.exec(trimmed);
 
-    if (trimmed === "packages:" || trimmed === "packages: []") {
-      inPackages = trimmed !== "packages: []";
-      continue;
+    if (!match) continue;
+
+    const inline = match[1]?.trim() ?? "";
+
+    if (inline === "[]") return [];
+
+    if (inline.startsWith("[")) {
+      return parseFlowSequence(inline);
     }
 
-    if (inPackages) {
-      if (trimmed.startsWith("- ")) {
-        const pattern = trimmed
-          .slice(2)
-          .trim()
-          .replaceAll(/^["']|["']$/g, "");
+    if (!inline) {
+      return parseBlockSequence(lines, i + 1);
+    }
+  }
 
-        if (pattern) {
-          patterns.push(pattern);
-        }
-      } else if (trimmed && !trimmed.startsWith("#")) {
-        break;
+  return [];
+}
+
+function parseFlowSequence(value: string): string[] {
+  const inner = value.slice(1, value.lastIndexOf("]")).trim();
+
+  if (!inner) return [];
+
+  return inner
+    .split(",")
+    .map((item) => item.trim().replaceAll(/^["']|["']$/g, ""))
+    .filter(Boolean);
+}
+
+function parseBlockSequence(lines: string[], start: number): string[] {
+  const patterns: string[] = [];
+
+  for (let i = start; i < lines.length; i++) {
+    const trimmed = lines[i]?.trim() ?? "";
+
+    if (trimmed.startsWith("- ")) {
+      const pattern = trimmed
+        .slice(2)
+        .trim()
+        .replaceAll(/^["']|["']$/g, "");
+
+      if (pattern) {
+        patterns.push(pattern);
       }
+    } else if (trimmed && !trimmed.startsWith("#")) {
+      break;
     }
   }
 
@@ -124,15 +164,7 @@ async function expandPatterns(root: string, patterns: string[]) {
   const dirs = new Set<string>();
 
   for (const pattern of patterns) {
-    const isNegation = pattern.startsWith("!");
-
-    if (isNegation) {
-      const negatedPattern = pattern.slice(1);
-
-      for await (const entry of glob(negatedPattern, { cwd: root })) {
-        dirs.delete(resolve(root, entry));
-      }
-    } else {
+    if (!pattern.startsWith("!")) {
       for await (const entry of glob(pattern, { cwd: root })) {
         const fullPath = resolve(root, entry);
 
@@ -145,6 +177,16 @@ async function expandPatterns(root: string, patterns: string[]) {
         } catch {
           // Not a directory or doesn't exist, skip
         }
+      }
+    }
+  }
+
+  for (const pattern of patterns) {
+    if (pattern.startsWith("!")) {
+      const negatedPattern = pattern.slice(1);
+
+      for await (const entry of glob(negatedPattern, { cwd: root })) {
+        dirs.delete(resolve(root, entry));
       }
     }
   }
