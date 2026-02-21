@@ -1,11 +1,10 @@
-import { ms } from "ms";
-
-import { cleanWorkspace } from "@/lib/clean-workspace";
-import { dim, suffix } from "@/lib/colors";
-import { getWorkspacePaths } from "@/lib/get-workspace-paths";
-import { log } from "@/lib/logging/log";
-import { createLineUpdater } from "@/lib/progress/line-updater";
-import { plural } from "@/lib/utils/plural";
+import { cleanWorkspace } from "./clean-workspace";
+import { dim, suffix } from "./colors";
+import { formatDuration } from "./format-duration";
+import { getWorkspacePaths } from "./get-workspace-paths";
+import { log } from "./log";
+import { plural } from "./plural";
+import { createLineUpdater } from "./progress";
 
 interface RunCleanOptions {
   cwd: string;
@@ -43,11 +42,10 @@ export async function runClean({
 
   const updateLine = createLineUpdater(workspacePaths, workspaceLines);
 
-  let results: PromiseSettledResult<{ skipped: boolean; success: boolean }>[] =
-    [];
+  let results: { skipped: boolean; success: boolean }[] = [];
 
   try {
-    results = await Promise.allSettled(
+    results = await Promise.all(
       workspacePaths.map((workspaceDir) => {
         return cleanWorkspace(workspaceDir, {
           dryRun,
@@ -61,15 +59,13 @@ export async function runClean({
     process.stdout.write(CURSOR_SHOW);
   }
 
-  const successes = results.filter(
-    (result) => result.status === "fulfilled" && result.value.success,
-  );
+  const successes = results.filter((result) => result.success);
 
   const endTime = performance.now();
   const duration = endTime - startTime;
 
   log.line();
   log.success(
-    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${dim(ms(duration))}${suffix(dryRun)}`,
+    `Cleaned ${successes.length} ${plural(successes.length, "workspace")} successfully in ${dim(formatDuration(duration))}${suffix(dryRun)}`,
   );
 }

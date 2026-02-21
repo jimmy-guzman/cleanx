@@ -1,6 +1,6 @@
 import type { Ignore } from "ignore";
 
-import { relative, sep } from "pathe";
+import { matchesGlob, normalize, relative } from "pathe";
 
 function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
   for (const [gitignoreDir, ignorer] of sortedEntries) {
@@ -18,31 +18,33 @@ function shouldDeleteFile(filePath: string, sortedEntries: [string, Ignore][]) {
   return false;
 }
 
-async function shouldExcludeFile(
+function shouldExcludeFile(
   relativePath: string,
   exclude: string[],
   include: string[],
 ) {
   if (!relativePath) return false;
 
-  const normalizedPath = relativePath.replaceAll(sep, "/");
-
-  const { default: zeptomatch } = await import("zeptomatch");
+  const normalizedPath = normalize(relativePath);
 
   const isExcluded = exclude.some((pattern) => {
-    return zeptomatch(pattern, normalizedPath);
+    const normalizedPattern = normalize(pattern);
+
+    return matchesGlob(normalizedPath, normalizedPattern);
   });
 
   if (!isExcluded) return false;
 
   const isIncluded = include.some((pattern) => {
-    return zeptomatch(pattern, normalizedPath);
+    const normalizedPattern = normalize(pattern);
+
+    return matchesGlob(normalizedPath, normalizedPattern);
   });
 
   return !isIncluded;
 }
 
-export async function filterFilesToDelete(
+export function filterFilesToDelete(
   allFiles: string[],
   dir: string,
   exclude: string[],
@@ -53,9 +55,9 @@ export async function filterFilesToDelete(
   const pathsToDelete: string[] = [];
   const total = allFiles.length;
 
-  const sortedEntries = [...ignoreMap.entries()].toSorted(
-    ([a], [b]) => b.split(sep).length - a.split(sep).length,
-  );
+  const sortedEntries = [...ignoreMap.entries()].toSorted(([a], [b]) => {
+    return normalize(b).split("/").length - normalize(a).split("/").length;
+  });
 
   const hasExclusions = exclude.length > 0;
 
@@ -71,7 +73,7 @@ export async function filterFilesToDelete(
     if (hasExclusions) {
       const relativePath = relative(dir, filePath);
 
-      if (await shouldExcludeFile(relativePath, exclude, include)) {
+      if (shouldExcludeFile(relativePath, exclude, include)) {
         continue;
       }
     }

@@ -15,10 +15,10 @@ describe("deletePaths", () => {
   });
 
   describe("dry run mode", () => {
-    it("should not delete files when isDryRun is true", async () => {
+    it("should not delete files when dryRun is true", async () => {
       const paths = ["/path/to/file1", "/path/to/file2"];
 
-      await deletePaths(paths, { isDryRun: true });
+      await deletePaths(paths, { dryRun: true });
 
       expect(mockRm).not.toHaveBeenCalled();
     });
@@ -26,7 +26,7 @@ describe("deletePaths", () => {
     it("should call onProgress for each path in dry run", async () => {
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
 
-      await deletePaths(paths, { isDryRun: true, onProgress: mockOnProgress });
+      await deletePaths(paths, { dryRun: true, onProgress: mockOnProgress });
 
       expect(mockOnProgress).toHaveBeenCalledTimes(3);
       expect(mockOnProgress).toHaveBeenNthCalledWith(1, 1, 3, "/path/to/file1");
@@ -38,12 +38,12 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1"];
 
       await expect(
-        deletePaths(paths, { isDryRun: true }),
+        deletePaths(paths, { dryRun: true }),
       ).resolves.toBeUndefined();
     });
 
     it("should handle empty paths array in dry run", async () => {
-      await deletePaths([], { isDryRun: true, onProgress: mockOnProgress });
+      await deletePaths([], { dryRun: true, onProgress: mockOnProgress });
 
       expect(mockOnProgress).not.toHaveBeenCalled();
       expect(mockRm).not.toHaveBeenCalled();
@@ -51,11 +51,11 @@ describe("deletePaths", () => {
   });
 
   describe("actual deletion mode", () => {
-    it("should delete all files when isDryRun is false", async () => {
+    it("should delete all files when dryRun is false", async () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/to/file1", "/path/to/file2"];
 
-      await deletePaths(paths, { isDryRun: false });
+      await deletePaths(paths, { dryRun: false });
 
       expect(mockRm).toHaveBeenCalledTimes(2);
       expect(mockRm).toHaveBeenCalledWith("/path/to/file1", {
@@ -72,7 +72,7 @@ describe("deletePaths", () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
 
-      await deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress });
+      await deletePaths(paths, { dryRun: false, onProgress: mockOnProgress });
 
       expect(mockOnProgress).toHaveBeenCalledTimes(3);
       expect(mockOnProgress).toHaveBeenNthCalledWith(1, 1, 3, "/path/to/file1");
@@ -85,12 +85,12 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1"];
 
       await expect(
-        deletePaths(paths, { isDryRun: false }),
+        deletePaths(paths, { dryRun: false }),
       ).resolves.toBeUndefined();
     });
 
     it("should handle empty paths array", async () => {
-      await deletePaths([], { isDryRun: false, onProgress: mockOnProgress });
+      await deletePaths([], { dryRun: false, onProgress: mockOnProgress });
 
       expect(mockOnProgress).not.toHaveBeenCalled();
       expect(mockRm).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe("deletePaths", () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/to/file1"];
 
-      await deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress });
+      await deletePaths(paths, { dryRun: false, onProgress: mockOnProgress });
 
       expect(mockRm).toHaveBeenCalledOnce();
       expect(mockOnProgress).toHaveBeenCalledWith(1, 1, "/path/to/file1");
@@ -114,9 +114,7 @@ describe("deletePaths", () => {
       mockRm.mockRejectedValue(new Error(errorMessage));
       const paths = ["/path/to/file1"];
 
-      await expect(
-        deletePaths(paths, { isDryRun: false }),
-      ).rejects.toThrowError(
+      await expect(deletePaths(paths, { dryRun: false })).rejects.toThrowError(
         `Failed to delete /path/to/file1: ${errorMessage}`,
       );
     });
@@ -128,7 +126,7 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1"];
 
       try {
-        await deletePaths(paths, { isDryRun: false });
+        await deletePaths(paths, { dryRun: false });
 
         expect.fail("Should have thrown an error");
       } catch (error) {
@@ -143,27 +141,27 @@ describe("deletePaths", () => {
       mockRm.mockRejectedValue("string error");
       const paths = ["/path/to/file1"];
 
-      await expect(
-        deletePaths(paths, { isDryRun: false }),
-      ).rejects.toThrowError("Failed to delete /path/to/file1: string error");
+      await expect(deletePaths(paths, { dryRun: false })).rejects.toThrowError(
+        "Failed to delete /path/to/file1: string error",
+      );
     });
 
     it("should handle undefined error from rm", async () => {
       mockRm.mockRejectedValue(undefined);
       const paths = ["/path/to/file1"];
 
-      await expect(
-        deletePaths(paths, { isDryRun: false }),
-      ).rejects.toThrowError("Failed to delete /path/to/file1: undefined");
+      await expect(deletePaths(paths, { dryRun: false })).rejects.toThrowError(
+        "Failed to delete /path/to/file1: undefined",
+      );
     });
 
     it("should handle null error from rm", async () => {
       mockRm.mockRejectedValue(null);
       const paths = ["/path/to/file1"];
 
-      await expect(
-        deletePaths(paths, { isDryRun: false }),
-      ).rejects.toThrowError("Failed to delete /path/to/file1: null");
+      await expect(deletePaths(paths, { dryRun: false })).rejects.toThrowError(
+        "Failed to delete /path/to/file1: null",
+      );
     });
 
     it("should not call onProgress when deletion fails", async () => {
@@ -171,7 +169,7 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1"];
 
       await expect(
-        deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress }),
+        deletePaths(paths, { dryRun: false, onProgress: mockOnProgress }),
       ).rejects.toThrowError("Failed to delete /path/to/file1: Failed");
 
       expect(mockOnProgress).not.toHaveBeenCalled();
@@ -185,9 +183,7 @@ describe("deletePaths", () => {
 
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
 
-      await expect(
-        deletePaths(paths, { isDryRun: false }),
-      ).rejects.toThrowError(
+      await expect(deletePaths(paths, { dryRun: false })).rejects.toThrowError(
         "Failed to delete /path/to/file2: Permission denied",
       );
     });
@@ -209,7 +205,7 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
       const startTime = Date.now();
 
-      await deletePaths(paths, { isDryRun: false });
+      await deletePaths(paths, { dryRun: false });
 
       const elapsed = Date.now() - startTime;
 
@@ -228,10 +224,9 @@ describe("deletePaths", () => {
       const paths = ["/path/to/file1", "/path/to/file2", "/path/to/file3"];
 
       await expect(
-        deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress }),
+        deletePaths(paths, { dryRun: false, onProgress: mockOnProgress }),
       ).rejects.toThrowError("Failed to delete /path/to/file2: Failed");
 
-      // Progress should be called for successful deletions
       expect(mockRm).toHaveBeenCalledTimes(3);
     });
   });
@@ -241,7 +236,7 @@ describe("deletePaths", () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/to/file1"];
 
-      await deletePaths(paths, { isDryRun: false });
+      await deletePaths(paths, { dryRun: false });
 
       expect(mockRm).toHaveBeenCalledWith("/path/to/file1", {
         force: true,
@@ -253,7 +248,7 @@ describe("deletePaths", () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/to/directory"];
 
-      await deletePaths(paths, { isDryRun: false });
+      await deletePaths(paths, { dryRun: false });
 
       expect(mockRm).toHaveBeenCalledWith("/path/to/directory", {
         force: true,
@@ -267,7 +262,7 @@ describe("deletePaths", () => {
       mockRm.mockResolvedValue(undefined);
       const paths = ["/path/1", "/path/2", "/path/3", "/path/4", "/path/5"];
 
-      await deletePaths(paths, { isDryRun: false, onProgress: mockOnProgress });
+      await deletePaths(paths, { dryRun: false, onProgress: mockOnProgress });
 
       expect(mockOnProgress).toHaveBeenCalledTimes(5);
 
@@ -280,7 +275,7 @@ describe("deletePaths", () => {
     it("should track progress correctly in dry run mode", async () => {
       const paths = ["/path/1", "/path/2", "/path/3"];
 
-      await deletePaths(paths, { isDryRun: true, onProgress: mockOnProgress });
+      await deletePaths(paths, { dryRun: true, onProgress: mockOnProgress });
 
       expect(mockOnProgress).toHaveBeenCalledTimes(3);
       expect(mockOnProgress).toHaveBeenNthCalledWith(1, 1, 3, "/path/1");

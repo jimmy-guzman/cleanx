@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 
 import { description, name, version } from "package.json";
 
-import { log } from "./lib/logging/log";
+import { log } from "./lib/log";
 import { parsePatterns } from "./lib/parse-patterns";
 
 const { values } = parseArgs({
@@ -73,7 +73,7 @@ if (values.version) {
   process.exit(0);
 }
 
-const { runClean } = await import("./commands/run-clean.js");
+const { runClean } = await import("./lib/run-clean.js");
 
 const { exclude, include } = await parsePatterns(
   values.exclude,

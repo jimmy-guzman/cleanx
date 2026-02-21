@@ -1,7 +1,7 @@
-const windowsNormalize = (pattern: string) => pattern.replaceAll("\\", "/");
+import { normalize } from "pathe";
 
 function normalizeExcludePattern(pattern: string) {
-  const normalized = windowsNormalize(pattern);
+  const normalized = normalize(pattern);
 
   if (normalized.includes("**")) {
     return normalized;
@@ -36,7 +36,7 @@ export async function parsePatterns(
   const include: string[] = [];
 
   for (const pattern of excludePatterns) {
-    const normalized = windowsNormalize(pattern);
+    const normalized = normalize(pattern);
 
     if (normalized.startsWith("!")) {
       const withoutBang = normalized.slice(1);
@@ -52,7 +52,7 @@ export async function parsePatterns(
   }
 
   for (const pattern of includePatterns) {
-    const normalized = windowsNormalize(pattern);
+    const normalized = normalize(pattern);
 
     include.push(...expand(normalized));
   }

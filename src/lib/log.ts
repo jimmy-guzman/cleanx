@@ -1,4 +1,4 @@
-import { ERROR, INFO, SUCCESS, WARN } from "../colors";
+import { ERROR, INFO, SUCCESS, WARN } from "./colors";
 
 export const log = {
   error: (...msg: unknown[]) => {

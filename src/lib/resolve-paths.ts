@@ -1,8 +1,12 @@
-import { basename } from "pathe";
+import type { Ignore } from "ignore";
 
-import { buildIgnoreMap } from "./build-ignore-map";
+import { readFile } from "node:fs/promises";
+
+import { basename, dirname } from "pathe";
+
 import { filterFilesToDelete } from "./filter-files-to-delete";
 import { getAllGitignoreFiles } from "./get-all-gitignore-files";
+import { getErrorMessage } from "./get-error-message";
 
 interface ResolvePathsOptions {
   dir: string;
@@ -13,6 +17,35 @@ interface ResolvePathsOptions {
     current?: number,
     total?: number,
   ) => void;
+}
+
+async function buildIgnoreMap(gitignoreFiles: string[]) {
+  const { default: ignore } = await import("ignore");
+  const ignoreMap = new Map<string, Ignore>();
+  const warnings: string[] = [];
+
+  const results = await Promise.allSettled(
+    gitignoreFiles.map(async (gitignorePath) => {
+      const content = await readFile(gitignorePath, "utf8");
+
+      return { content, path: gitignorePath };
+    }),
+  );
+
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      const { content, path } = result.value;
+      const ignorer = ignore().add(content);
+
+      ignoreMap.set(dirname(path), ignorer);
+    } else {
+      warnings.push(
+        `Failed to read gitignore: ${getErrorMessage(result.reason)}`,
+      );
+    }
+  }
+
+  return { ignoreMap, warnings };
 }
 
 export async function resolvePaths(options: ResolvePathsOptions) {
@@ -37,10 +70,16 @@ export async function resolvePaths(options: ResolvePathsOptions) {
     .crawl(dir)
     .withPromise();
 
-  const [ignoreMap, allFiles] = await Promise.all([
+  const [{ ignoreMap, warnings }, allFiles] = await Promise.all([
     buildIgnoreMap(allGitignoreFiles),
     scanFiles,
   ]);
+
+  for (const warning of warnings) {
+    const { log } = await import("./log");
+
+    log.warn(warning);
+  }
 
   onProgress("filtering", 0, allFiles.length);
 
